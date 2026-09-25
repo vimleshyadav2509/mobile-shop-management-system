@@ -1,0 +1,185 @@
+============================================================
+PROJECT CONTEXT & PROGRESS REPORT FOR CHATGPT
+============================================================
+
+--- [1. PROJECT OVERVIEW] ---
+# Amit Mobile Shop - Full-Stack Web Application
+
+A complete, production-ready, highly professional web application built strictly for **Amit Mobile Shop**, located at **Kuk Nagar Grint Rd, Khorare, Uttar Pradesh 271312**.
+
+---
+
+## Business Information
+- **Business Name**: Amit Mobile Shop
+- **Exact Address**: Kuk Nagar Grint Rd, Khorare, Uttar Pradesh 271312
+- **Google Maps**: [View on Google Maps](https://maps.app.goo.gl/Cumott8vek7HA85K9)
+- **Contact Numbers**: `+91 6306657432`, `+91 9721996477`
+- **WhatsApp Integration**: Direct pre-filled click-to-chat links for products & repair bookings.
+- **Financing Partners**: Bajaj Finserv (No Cost EMI), TVS Credit (Rural Finance), Samsung Finance+ (Digital Paperless).
+
+---
+
+## Technical Stack
+- **Frontend**: React (Vite) + Tailwind CSS + Lucide Icons (Bilingual Hindi 🇮🇳 / English 🌐)
+- **Backend**: FastAPI (Python 3) + Uvicorn + Pydantic
+- **Database**: PostgreSQL / Supabase Schema (`backend/schema.sql`) with zero-config SQLite engine (`backend/ams_store.db`)
+- **AI Integration**: Google GenAI SDK (Gemini Pro / Flash) with domain-specific pricing heuristics fallback
+
+---
+
+## Quick Start Guide
+
+### 1. Run Backend Server (FastAPI)
+```bash
+# Navigate to backend and install requirements (if not already installed)
+pip install -r backend/requirements.txt
+
+# Start the FastAPI server
+python backend/run.py
+```
+Backend API will run at **http://localhost:8000**
+- Health Check: `http://localhost:8000/api/health`
+- Interactive API Docs: `http://localhost:8000/docs`
+
+### 2. Run Frontend Server (React + Vite)
+```bash
+# In another terminal window:
+cd frontend
+npm install
+npm run dev
+```
+
+--- [2. TECH STACK & DEPENDENCIES] ---
+
+[Backend - requirements.txt]:
+fastapi>=0.110.0
+uvicorn>=0.28.0
+pydantic>=2.6.0
+python-dotenv>=1.0.1
+requests>=2.31.0
+httpx>=0.27.0
+google-generativeai>=0.4.0
+
+[Frontend - package.json dependencies]:
+{
+  "name": "amit-mobile-shop-frontend",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.363.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "tailwind-merge": "^2.2.2"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.66",
+    "@types/react-dom": "^18.2.22",
+    "@vitejs/plugin-react": "^4.2.1",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.3",
+    "vite": "^5.2.0"
+  }
+}
+
+--- [3. CURRENT REPOSITORY STRUCTURE] ---
+./
+    README.md
+    project_summary.py
+    backend/
+        .env
+        .env.example
+        requirements.txt
+        run.py
+        schema.sql
+        app/
+            __init__.py
+            ai_service.py
+            config.py
+            database.py
+            main.py
+            models.py
+            routes/
+                estimator.py
+                products.py
+                repairs.py
+    frontend/
+        .env
+        .env.example
+        index.html
+        package.json
+        postcss.config.js
+        tailwind.config.js
+        vite.config.js
+        src/
+            App.jsx
+            index.css
+            main.jsx
+            components/
+                ContactBar.jsx
+                EMIBadges.jsx
+                Footer.jsx
+                HeroBanner.jsx
+                LanguageModal.jsx
+                Navbar.jsx
+                BuyingHub/
+                    BuyingHub.jsx
+                    EmiCalculatorModal.jsx
+                    ProductCard.jsx
+                RepairingHub/
+                    JobSheetTracker.jsx
+                    RepairEstimator.jsx
+                    RepairingHub.jsx
+            context/
+                LanguageContext.jsx
+            data/
+                mockData.js
+            services/
+                api.js
+
+--- [4. BACKEND API ROUTES & DATA MODELS] ---
+
+Route File: backend/app/routes/estimator.py
+  @router.post("", response_model=EstimateResponse)
+  async def get_repair_estimate(req: EstimateRequest):
+
+Route File: backend/app/routes/products.py
+  @router.get("", response_model=List[Product])
+  def get_products(
+
+Route File: backend/app/routes/repairs.py
+  @router.get("/{job_sheet_id}", response_model=RepairJob)
+  def get_repair_status(
+  @router.post("", response_model=RepairJob)
+  def book_repair_job(job_in: RepairJobCreate):
+
+--- [5. FRONTEND COMPONENTS & ARCHITECTURE] ---
+  - frontend/src/components/ContactBar.jsx
+  - frontend/src/components/EMIBadges.jsx
+  - frontend/src/components/Footer.jsx
+  - frontend/src/components/HeroBanner.jsx
+  - frontend/src/components/LanguageModal.jsx
+  - frontend/src/components/Navbar.jsx
+  - frontend/src/components/BuyingHub/BuyingHub.jsx
+  - frontend/src/components/BuyingHub/EmiCalculatorModal.jsx
+  - frontend/src/components/BuyingHub/ProductCard.jsx
+  - frontend/src/components/RepairingHub/JobSheetTracker.jsx
+  - frontend/src/components/RepairingHub/RepairEstimator.jsx
+  - frontend/src/components/RepairingHub/RepairingHub.jsx
+
+============================================================
+PROMPT FOR CHATGPT:
+I am developing the Amit Mobile Shop web application described above.
+Review the current project architecture, implemented features, and backend/frontend structure.
+Please provide a prioritized roadmap of the NEXT STEPS to complete this project, including:
+1. Missing critical features or improvements (auth, payment gateway, admin portal, notifications, etc.)
+2. Database, API, and state management enhancements
+3. Production readiness, security, and deployment checklist
+============================================================
