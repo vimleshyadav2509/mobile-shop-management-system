@@ -312,29 +312,40 @@ Storefront runs on `http://localhost:5173` with Admin portal at `http://localhos
 
 ---
 
-## Production Deployment Architecture
+## Production Deployment Architecture (Railway Unified Project)
 
-The application is prepared for a decoupled production architecture:
-* **Frontend**: Vercel (Global Edge CDN, automatic HTTPS, SPA fallback via `frontend/vercel.json`).
-* **Backend**: Render / Railway / Persistent Container running FastAPI with Uvicorn.
-* **Persistent Storage**: Attached persistent disk volume (e.g., `/var/data` on Render) for SQLite and uploaded product images.
+The application is deployed to **Railway** as a unified project managing both services:
+* **Frontend Service**: React + Vite SPA built and served via `vite preview` with automatic SPA routing fallback.
+* **Backend Service**: FastAPI with Uvicorn ASGI server.
+* **Persistent Volume**: Railway Persistent Volume attached to Backend Service at `/var/data` containing:
+  - `/var/data/ams_store.db` (Persistent SQLite Database)
+  - `/var/data/uploads/` (Persistent Product Image Uploads)
 
-### Production Backend Startup Command
-Run from the `backend/` directory:
-```bash
-uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
-```
+### Railway Service Configuration
+
+#### 1. Backend Service
+* **Root Directory**: `backend`
+* **Build Command**: `pip install -r requirements.txt`
+* **Start Command**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+* **Persistent Volume**: Attached at `/var/data` (1 GB)
+
+#### 2. Frontend Service
+* **Root Directory**: `frontend`
+* **Build Command**: `npm run build`
+* **Start Command**: `npm start` (runs `vite preview` bound to `0.0.0.0` and `$PORT`)
 
 ### Production Environment Variables
+
 | Variable | Component | Required | Purpose |
 | :--- | :---: | :---: | :--- |
 | `ENVIRONMENT` | Backend | **Yes** | Set to `production` to activate production guards & HSTS |
-| `PORT` | Backend | **Yes** | Server port assigned by hosting provider (e.g. Render `$PORT`) |
+| `PORT` | Backend / Frontend | **Yes** | Server port assigned dynamically by Railway (`$PORT`) |
 | `JWT_SECRET_KEY` | Backend | **Yes** | Cryptographically random secret (≥ 32 chars) for signing JWTs |
-| `FRONTEND_URL` | Backend | **Yes** | Public HTTPS domain of frontend (e.g. `https://amitmobileshop.vercel.app`) |
-| `DB_PATH` | Backend | **Yes** | Path to SQLite on attached volume (e.g. `/var/data/ams_store.db`) |
-| `UPLOAD_DIR` | Backend | **Yes** | Path to uploads on attached volume (e.g. `/var/data/uploads`) |
-| `VITE_API_URL` | Frontend | Optional | Backend API URL if communicating directly across origins |
+| `FRONTEND_URL` | Backend | **Yes** | Public Railway frontend domain (e.g. `https://<frontend>.up.railway.app`) |
+| `ALLOWED_ORIGINS` | Backend | **Yes** | Allowed CORS origins matching Railway frontend domain |
+| `DB_PATH` | Backend | **Yes** | SQLite DB path on persistent volume (`/var/data/ams_store.db`) |
+| `UPLOAD_DIR` | Backend | **Yes** | Upload storage path on persistent volume (`/var/data/uploads`) |
+| `VITE_API_URL` | Frontend | **Yes** | Public Railway backend URL (e.g. `https://<backend>.up.railway.app`) |
 
 ---
 
