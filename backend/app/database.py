@@ -3,10 +3,11 @@ import os
 import uuid
 from typing import List, Optional, Dict, Any
 from datetime import datetime
-from app.config import SUPABASE_URL, SUPABASE_KEY, ADMIN_USERNAME, ADMIN_PASSWORD
+from app.config import SUPABASE_URL, SUPABASE_KEY, ADMIN_USERNAME, ADMIN_PASSWORD, DB_PATH
 from app.security import hash_password
 
-DB_FILE = os.path.join(os.path.dirname(__file__), "..", "ams_store.db")
+DB_FILE = DB_PATH
+
 
 def get_connection():
     conn = sqlite3.connect(DB_FILE)

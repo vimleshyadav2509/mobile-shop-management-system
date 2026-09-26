@@ -72,3 +72,42 @@ else:
     ALLOWED_ORIGINS = list(dict.fromkeys(ALLOWED_ORIGINS))
 
 
+# ==============================================================================
+# Persistent Storage Configuration (SQLite DB & Uploads)
+# ==============================================================================
+# In development, defaults to backend/ams_store.db and backend/static/uploads
+# In production on persistent volume (e.g. /data or /var/data), configure DB_PATH & UPLOAD_DIR
+_backend_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+
+_DEFAULT_DB_PATH = os.path.abspath(os.path.join(_backend_root, "ams_store.db"))
+_env_db_path = os.getenv("DB_PATH", "").strip()
+
+if _env_db_path:
+    if os.path.isabs(_env_db_path):
+        DB_PATH = os.path.abspath(_env_db_path)
+    else:
+        DB_PATH = os.path.abspath(os.path.join(_backend_root, _env_db_path))
+else:
+    DB_PATH = _DEFAULT_DB_PATH
+
+# Ensure parent directory for database exists
+_db_dir = os.path.dirname(DB_PATH)
+if _db_dir:
+    os.makedirs(_db_dir, exist_ok=True)
+
+_DEFAULT_UPLOAD_DIR = os.path.abspath(os.path.join(_backend_root, "static", "uploads"))
+_env_upload_dir = os.getenv("UPLOAD_DIR", "").strip()
+
+if _env_upload_dir:
+    if os.path.isabs(_env_upload_dir):
+        UPLOAD_DIR = os.path.abspath(_env_upload_dir)
+    else:
+        UPLOAD_DIR = os.path.abspath(os.path.join(_backend_root, _env_upload_dir))
+else:
+    UPLOAD_DIR = _DEFAULT_UPLOAD_DIR
+
+PRODUCT_UPLOAD_DIR = os.path.join(UPLOAD_DIR, "products")
+os.makedirs(PRODUCT_UPLOAD_DIR, exist_ok=True)
+
+
+

@@ -1,6 +1,37 @@
 import { INITIAL_PRODUCTS, MOCK_REPAIRS, SHOP_INFO } from '../data/mockData';
 
-const BASE_URL = '/api';
+// Determine API Base URL dynamically:
+// - If VITE_API_URL is configured, sanitize trailing slashes and ensure /api endpoint path
+// - Defaults to local relative '/api' for Vite dev proxy or same-domain deployment
+function resolveApiBaseUrl() {
+  const envUrl = (import.meta.env.VITE_API_URL || '').trim();
+  if (!envUrl) {
+    return '/api';
+  }
+  const cleanUrl = envUrl.replace(/\/+$/, '');
+  if (cleanUrl.endsWith('/api')) {
+    return cleanUrl;
+  }
+  return `${cleanUrl}/api`;
+}
+
+const BASE_URL = resolveApiBaseUrl();
+
+// Helper to resolve static image assets against remote backend if decoupled without reverse proxy
+export function getStaticAssetUrl(path) {
+  if (!path || typeof path !== 'string') return '';
+  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) {
+    return path;
+  }
+  const envUrl = (import.meta.env.VITE_API_URL || '').trim();
+  if (envUrl && !envUrl.startsWith('/')) {
+    const cleanOrigin = envUrl.replace(/\/+$/, '').replace(/\/api$/, '');
+    const cleanPath = path.startsWith('/') ? path : `/${path}`;
+    return `${cleanOrigin}${cleanPath}`;
+  }
+  return path;
+}
+
 
 export async function fetchProducts(condition = null, brand = null, includeOutOfStock = false, search = null, category = null) {
   try {

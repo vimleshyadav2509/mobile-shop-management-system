@@ -10,7 +10,9 @@ from app.config import (
     SHOP_LOCATION,
     FRONTEND_URL,
     ALLOWED_ORIGINS,
-    IS_PRODUCTION
+    IS_PRODUCTION,
+    UPLOAD_DIR,
+    PRODUCT_UPLOAD_DIR
 )
 from app.database import init_db
 
@@ -42,10 +44,17 @@ async def add_security_headers(request: Request, call_next):
         response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
     return response
 
-# Static files directory for uploaded product photos
-static_dir = os.path.join(os.path.dirname(__file__), "..", "static")
-os.makedirs(os.path.join(static_dir, "uploads", "products"), exist_ok=True)
+# Static files and persistent uploads delivery
+static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "static"))
+os.makedirs(static_dir, exist_ok=True)
+os.makedirs(PRODUCT_UPLOAD_DIR, exist_ok=True)
+
+# Mount uploaded media under /static/uploads (supports persistent volume e.g. /data/uploads)
+app.mount("/static/uploads", StaticFiles(directory=UPLOAD_DIR), name="static_uploads")
+
+# Mount base static files directory for documentation, root assets, etc.
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
 
 # Strict, origin-specific CORS configuration (prevents arbitrary cross-origin token theft)
 app.add_middleware(

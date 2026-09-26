@@ -257,6 +257,8 @@ Automated test execution results verified against local services:
 * **Phase 2 (Core Business & Catalog)**: Completed
 * **Phase 3 (Security & Hardening)**: Security Verified
 * **Phase 4 (Enterprise Business Management)**: Completed
+* **Phase 5.1 (Production Deployment Audit)**: Completed
+* **Phase 5.2 (Production Deployment Preparation)**: Prepared for production deployment
 
 ---
 
@@ -276,7 +278,7 @@ The following enhancements are planned for future major releases:
 
 ---
 
-## Getting Started
+## Getting Started (Local Development)
 
 ### Prerequisites
 * Python 3.10+
@@ -310,7 +312,34 @@ Storefront runs on `http://localhost:5173` with Admin portal at `http://localhos
 
 ---
 
+## Production Deployment Architecture
+
+The application is prepared for a decoupled production architecture:
+* **Frontend**: Vercel (Global Edge CDN, automatic HTTPS, SPA fallback via `frontend/vercel.json`).
+* **Backend**: Render / Railway / Persistent Container running FastAPI with Uvicorn.
+* **Persistent Storage**: Attached persistent disk volume (e.g., `/var/data` on Render) for SQLite and uploaded product images.
+
+### Production Backend Startup Command
+Run from the `backend/` directory:
+```bash
+uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
+```
+
+### Production Environment Variables
+| Variable | Component | Required | Purpose |
+| :--- | :---: | :---: | :--- |
+| `ENVIRONMENT` | Backend | **Yes** | Set to `production` to activate production guards & HSTS |
+| `PORT` | Backend | **Yes** | Server port assigned by hosting provider (e.g. Render `$PORT`) |
+| `JWT_SECRET_KEY` | Backend | **Yes** | Cryptographically random secret (≥ 32 chars) for signing JWTs |
+| `FRONTEND_URL` | Backend | **Yes** | Public HTTPS domain of frontend (e.g. `https://amitmobileshop.vercel.app`) |
+| `DB_PATH` | Backend | **Yes** | Path to SQLite on attached volume (e.g. `/var/data/ams_store.db`) |
+| `UPLOAD_DIR` | Backend | **Yes** | Path to uploads on attached volume (e.g. `/var/data/uploads`) |
+| `VITE_API_URL` | Frontend | Optional | Backend API URL if communicating directly across origins |
+
+---
+
 ## Author
 
 **Vimlesh Kumar Yadav**
 GitHub: [@vimleshyadav2509](https://github.com/vimleshyadav2509)
+

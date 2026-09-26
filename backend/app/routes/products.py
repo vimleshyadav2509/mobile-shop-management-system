@@ -12,12 +12,14 @@ from app.database import (
     is_image_url_in_use
 )
 from app.dependencies import get_current_admin
+from app.config import PRODUCT_UPLOAD_DIR
 
 router = APIRouter(prefix="/api/products", tags=["Products"])
 
-# Ensure static upload directory exists
-UPLOAD_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "static", "uploads", "products")
+# Configurable static product upload directory (supports persistent volumes)
+UPLOAD_DIR = PRODUCT_UPLOAD_DIR
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+
 
 # Allowed image MIME types, extensions and max size (5MB)
 ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif", "image/jpg"}
