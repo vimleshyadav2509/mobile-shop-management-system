@@ -1,18 +1,31 @@
 /* Professional Business Theme for Amit Mobile Shop Admin Panel */
 
 .ams-admin-root {
-  --admin-bg: #0f172a;
+  --admin-bg: #0B1220;
   --admin-sidebar: #090e1a;
-  --admin-panel: #1e293b;
+  --admin-panel: #111827;
+  --admin-card-surface: #111827;
   --admin-border: #334155;
-  --admin-border-subtle: #1e293b;
+  --admin-border-subtle: #1E293B;
   
-  --primary-brand: #2563eb;
-  --primary-hover: #1d4ed8;
+  --card-elevated: #111827;
+  --card-hover: #172033;
+  --foreground: #F8FAFC;
+  --muted-foreground: #94A3B8;
+  --border: #334155;
+  --border-strong: #475569;
+  --input-bg: #111827;
+
+  --primary-brand: #2563EB;
+  --primary-hover: #1D4ED8;
+  --secondary-accent: #6366F1;
+  --success-color: #16A34A;
+  --warning-color: #F59E0B;
+  --error-color: #DC2626;
   
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
-  --text-subtle: #64748b;
+  --text-main: #F8FAFC;
+  --text-muted: #94A3B8;
+  --text-subtle: #64748B;
 
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background-color: var(--admin-bg);
@@ -22,10 +35,18 @@
 
 /* Software Panel Utility */
 .ams-admin-root .admin-software-panel {
-  background-color: var(--admin-panel);
+  background-color: #111827;
   border: 1px solid var(--admin-border);
   border-radius: 0.75rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Card Class */
+.ams-admin-root .admin-card {
+  background-color: #111827;
+  border: 1px solid #334155;
+  border-radius: 0.75rem;
+  color: #F8FAFC;
 }
 
 /* Professional Clean Row */
@@ -34,34 +55,106 @@
 }
 
 .ams-admin-root .admin-row-hover:hover {
-  background-color: rgba(255, 255, 255, 0.03);
+  background-color: rgba(255, 255, 255, 0.04);
 }
 
 /* Clean Input Field */
-.ams-admin-root .admin-clean-input {
-  background-color: #0f172a;
-  border: 1px solid var(--admin-border);
-  border-radius: 0.5rem;
-  padding: 0.5rem 0.75rem;
+.ams-admin-root .admin-input,
+.ams-admin-root .admin-clean-input,
+.admin-input,
+.admin-clean-input {
+  background-color: #111827;
+  border: 1px solid #334155;
+  border-radius: 0.625rem;
+  padding: 0.625rem 0.875rem;
   font-size: 0.875rem;
-  color: #ffffff;
+  color: #F8FAFC;
   outline: none;
-  transition: border-color 0.15s ease;
+  transition: all 0.15s ease;
+  width: 100%;
 }
 
-.ams-admin-root .admin-clean-input:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 1px #3b82f6;
+.ams-admin-root .admin-input option,
+.ams-admin-root .admin-clean-input option,
+.admin-input option,
+.admin-clean-input option {
+  background-color: #111827;
+  color: #F8FAFC;
+}
+
+.ams-admin-root .admin-input::placeholder,
+.ams-admin-root .admin-clean-input::placeholder,
+.admin-input::placeholder,
+.admin-clean-input::placeholder {
+  color: #64748B;
+}
+
+.ams-admin-root .admin-input:focus,
+.ams-admin-root .admin-clean-input:focus,
+.admin-input:focus,
+.admin-clean-input:focus {
+  border-color: #2563EB;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25);
+  background-color: #172033;
+}
+
+/* Primary Button */
+.ams-admin-root .admin-btn-primary,
+.admin-btn-primary {
+  background-color: #2563EB;
+  color: #FFFFFF;
+  font-weight: 600;
+  border-radius: 0.625rem;
+  padding: 0.625rem 1.25rem;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.ams-admin-root .admin-btn-primary:hover:not(:disabled),
+.admin-btn-primary:hover:not(:disabled) {
+  background-color: #1D4ED8;
+}
+
+.ams-admin-root .admin-btn-primary:disabled,
+.admin-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Secondary Button */
+.ams-admin-root .admin-btn-secondary,
+.admin-btn-secondary {
+  background-color: #1E293B;
+  border: 1px solid #334155;
+  color: #E2E8F0;
+  font-weight: 500;
+  border-radius: 0.625rem;
+  padding: 0.625rem 1.25rem;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.ams-admin-root .admin-btn-secondary:hover:not(:disabled),
+.admin-btn-secondary:hover:not(:disabled) {
+  background-color: #334155;
+  color: #FFFFFF;
 }
 
 /* Clean Minimal Scrollbars */
 .ams-admin-root ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 
 .ams-admin-root ::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: #0B1220;
 }
 
 .ams-admin-root ::-webkit-scrollbar-thumb {

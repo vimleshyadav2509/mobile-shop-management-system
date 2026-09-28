@@ -16,7 +16,15 @@ import {
   Image as ImageIcon,
   AlertTriangle,
   RefreshCw,
-  Check
+  Check,
+  ChevronDown,
+  ChevronUp,
+  IndianRupee,
+  Sliders,
+  ShieldCheck,
+  CreditCard,
+  ArrowLeft,
+  FileText
 } from 'lucide-react';
 import { uploadProductImage } from '../../services/api';
 
@@ -72,6 +80,34 @@ export default function ProductsManager({
   const [formEmiTvs, setFormEmiTvs] = useState(true);
   const [formEmiSamsung, setFormEmiSamsung] = useState(true);
   const [formError, setFormError] = useState('');
+
+  // Variant 1 - Full-Screen Accordion Editor Section States
+  const [openSections, setOpenSections] = useState({
+    basic: true,
+    pricing: true,
+    specs: false,
+    details: false,
+    images: false,
+    warranty: false,
+  });
+
+  const toggleSection = (sectionKey) => {
+    setOpenSections((prev) => ({
+      ...prev,
+      [sectionKey]: !prev[sectionKey]
+    }));
+  };
+
+  // Live stock status calculation for summary card
+  const calculatedStockStatus = useMemo(() => {
+    if (formStockStatus && formStockStatus !== 'AUTO') {
+      return formStockStatus;
+    }
+    const count = parseInt(formStockCount, 10);
+    if (isNaN(count) || count <= 0 || !formStock) return 'OUT OF STOCK';
+    if (count <= 5) return 'LOW STOCK';
+    return 'IN STOCK';
+  }, [formStockStatus, formStockCount, formStock]);
 
   // Extract unique brands from catalogue
   const brands = useMemo(() => {
@@ -599,409 +635,700 @@ export default function ProductsManager({
         </>
       )}
 
-      {/* Add / Edit Modal */}
+      {/* Variant 1 — Full-Screen Mobile Accordion Editor */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
-          <div className="admin-card w-full max-w-xl p-5 sm:p-6 shadow-2xl relative animate-card-fade max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-[#0B1220] flex flex-col justify-start">
+          <div className="w-full max-w-3xl mx-auto min-h-screen sm:min-h-0 sm:my-6 bg-[#0B1220] sm:border sm:border-[#334155] sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden">
             
-            <div className="flex items-center justify-between pb-3 mb-4 border-b border-[var(--border)]">
-              <div>
-                <h3 className="text-base font-bold text-[var(--foreground)]">
-                  {editingProduct ? 'Edit Product Details' : 'Add New Product to Store'}
-                </h3>
-                <p className="text-xs text-[var(--muted-foreground)]">
-                  Configure catalogue details, pricing, inventory stock, and financing
-                </p>
+            {/* 1. Sticky Header */}
+            <header className="sticky top-0 z-30 bg-[#0B1220]/95 backdrop-blur-md border-b border-[#334155] px-4 py-3 sm:px-6 sm:py-3.5 flex items-center justify-between gap-3 shadow-sm">
+              <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                <button
+                  type="button"
+                  onClick={() => setIsAddModalOpen(false)}
+                  className="p-2 rounded-xl text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-[#1E293B] border border-transparent hover:border-[#334155] min-h-[40px] min-w-[40px] flex items-center justify-center transition-colors shrink-0"
+                  title="Close / Go Back"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </button>
+                <div className="min-w-0">
+                  <h3 className="text-sm sm:text-base font-bold text-[#F8FAFC] truncate">
+                    {editingProduct ? 'Edit Product' : 'Add New Product'}
+                  </h3>
+                  <p className="text-[11px] text-[#94A3B8] truncate hidden sm:block">
+                    {editingProduct ? (formName || editingProduct.title) : 'Create mobile counter catalogue entry'}
+                  </p>
+                </div>
               </div>
 
-              <button
-                type="button"
-                onClick={() => setIsAddModalOpen(false)}
-                className="p-2 rounded-lg text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--muted)] min-h-[40px] min-w-[40px] flex items-center justify-center"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+              <div className="flex items-center gap-2 shrink-0">
+                {/* Header Strong Save CTA */}
+                <button
+                  type="button"
+                  onClick={handleSaveProduct}
+                  disabled={isSubmitting}
+                  className="px-4 py-2 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] active:scale-95 text-white font-semibold text-xs sm:text-sm flex items-center gap-1.5 transition-all shadow-sm disabled:opacity-50 min-h-[40px]"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <span>Saving...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Check className="w-4 h-4" />
+                      <span>Save</span>
+                    </>
+                  )}
+                </button>
 
-            {formError && (
-              <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 shrink-0" />
-                <span>{formError}</span>
+                <button
+                  type="button"
+                  onClick={() => setIsAddModalOpen(false)}
+                  className="p-2 rounded-xl text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-[#1E293B] min-h-[40px] min-w-[40px] flex items-center justify-center transition-colors"
+                  title="Close"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
-            )}
+            </header>
 
-            <form onSubmit={handleSaveProduct} className="space-y-4">
+            {/* Scrollable Form Body */}
+            <form onSubmit={handleSaveProduct} className="p-4 sm:p-6 space-y-4 flex-1">
               
-              {/* Title / Name */}
-              <div>
-                <label className="block text-xs font-semibold text-[var(--foreground)] mb-1.5">
-                  Product Title / Name *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formName}
-                  onChange={(e) => setFormName(e.target.value)}
-                  placeholder="e.g. Samsung Galaxy S24 Ultra 5G"
-                  className="admin-input"
-                />
-              </div>
-
-              {/* Brand, Model, Category */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-[var(--foreground)] mb-1.5">
-                    Brand *
-                  </label>
-                  <select
-                    value={formBrand}
-                    onChange={(e) => setFormBrand(e.target.value)}
-                    className="admin-input"
-                  >
-                    <option value="Samsung">Samsung</option>
-                    <option value="Vivo">Vivo</option>
-                    <option value="Apple">Apple</option>
-                    <option value="OnePlus">OnePlus</option>
-                    <option value="Realme">Realme</option>
-                    <option value="Xiaomi">Xiaomi / Redmi</option>
-                    <option value="Oppo">Oppo</option>
-                    <option value="Motorola">Motorola</option>
-                    <option value="Other">Other</option>
-                  </select>
+              {/* Form Validation Error Banner */}
+              {formError && (
+                <div className="p-3 sm:p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs flex items-center gap-2.5 animate-card-fade">
+                  <AlertTriangle className="w-4 h-4 shrink-0 text-rose-400" />
+                  <span className="font-medium">{formError}</span>
                 </div>
+              )}
 
-                <div>
-                  <label className="block text-xs font-semibold text-[var(--foreground)] mb-1.5">
-                    Model
-                  </label>
-                  <input
-                    type="text"
-                    value={formModel}
-                    onChange={(e) => setFormModel(e.target.value)}
-                    placeholder="e.g. S24 Ultra"
-                    className="admin-input"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-[var(--foreground)] mb-1.5">
-                    Category *
-                  </label>
-                  <select
-                    value={formCategory}
-                    onChange={(e) => setFormCategory(e.target.value)}
-                    className="admin-input"
-                  >
-                    {CATEGORIES.map((cat) => (
-                      <option key={cat} value={cat}>{cat}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {/* Condition & RAM/Storage */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-[var(--foreground)] mb-1.5">
-                    Condition *
-                  </label>
-                  <select
-                    value={formCondition}
-                    onChange={(e) => setFormCondition(e.target.value)}
-                    className="admin-input"
-                  >
-                    <option value="new">Brand New (Box Pack / Sealed)</option>
-                    <option value="like_new">Certified Refurbished (Like New)</option>
-                    <option value="good">Pre-Owned (Good Condition)</option>
-                    <option value="fair">Budget Pre-Owned (Fair Condition)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-[var(--foreground)] mb-1.5">
-                    RAM / Storage
-                  </label>
-                  <input
-                    type="text"
-                    value={formRamStorage}
-                    onChange={(e) => setFormRamStorage(e.target.value)}
-                    placeholder="e.g. 12GB / 256GB"
-                    className="admin-input"
-                  />
-                </div>
-              </div>
-
-              {/* Pricing */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-[var(--foreground)] mb-1.5">
-                    Selling Price (₹) *
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    min="0"
-                    value={formPrice}
-                    onChange={(e) => setFormPrice(e.target.value)}
-                    placeholder="e.g. 41999"
-                    className="admin-input"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-[var(--foreground)] mb-1.5">
-                    Original Price / MRP (₹)
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={formOriginalPrice}
-                    onChange={(e) => setFormOriginalPrice(e.target.value)}
-                    placeholder="e.g. 46999 (for discount badge)"
-                    className="admin-input"
-                  />
-                </div>
-              </div>
-
-              {/* Color, Battery Health, Warranty */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-[var(--foreground)] mb-1.5">
-                    Color Variant
-                  </label>
-                  <input
-                    type="text"
-                    value={formColor}
-                    onChange={(e) => setFormColor(e.target.value)}
-                    placeholder="e.g. Andaman Blue"
-                    className="admin-input"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-[var(--foreground)] mb-1.5">
-                    Battery Health
-                  </label>
-                  <input
-                    type="text"
-                    value={formBatteryHealth}
-                    onChange={(e) => setFormBatteryHealth(e.target.value)}
-                    placeholder="e.g. 100% or 92%"
-                    className="admin-input"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-[var(--foreground)] mb-1.5">
-                    Warranty Info
-                  </label>
-                  <input
-                    type="text"
-                    value={formWarrantyInfo}
-                    onChange={(e) => setFormWarrantyInfo(e.target.value)}
-                    placeholder="e.g. 1 Year Official Brand Warranty"
-                    className="admin-input"
-                  />
-                </div>
-              </div>
-
-              {/* Device Variant / Edition */}
-              <div>
-                <label className="block text-xs font-semibold text-[var(--foreground)] mb-1.5">
-                  Device Variant / Edition (Optional)
-                </label>
-                <input
-                  type="text"
-                  value={formVariant}
-                  onChange={(e) => setFormVariant(e.target.value)}
-                  placeholder="e.g. 5G Indian Retail, Global Edition, Titanium Special"
-                  className="admin-input"
-                />
-              </div>
-
-              {/* Stock Quantity, Status Override & Shelf Availability */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 rounded-xl bg-[var(--card-elevated)] border border-[var(--border)]">
-                <div>
-                  <label className="block text-xs font-semibold text-[var(--foreground)] mb-1.5">
-                    Stock Quantity (Units)
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={formStockCount}
-                    onChange={(e) => setFormStockCount(e.target.value)}
-                    placeholder="e.g. 5"
-                    className="admin-input"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-[var(--foreground)] mb-1.5">
-                    Stock Status Control
-                  </label>
-                  <select
-                    value={formStockStatus}
-                    onChange={(e) => setFormStockStatus(e.target.value)}
-                    className="admin-input text-xs"
-                  >
-                    <option value="AUTO">Auto Calculate (from units)</option>
-                    <option value="IN STOCK">IN STOCK (&gt;5)</option>
-                    <option value="LOW STOCK">LOW STOCK (1-5)</option>
-                    <option value="OUT OF STOCK">OUT OF STOCK (0)</option>
-                    <option value="COMING SOON">COMING SOON</option>
-                  </select>
-                </div>
-
-                <div className="flex items-center pt-5">
-                  <label className="flex items-center gap-2 text-xs font-semibold text-[var(--foreground)] cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formStock}
-                      onChange={(e) => setFormStock(e.target.checked)}
-                      className="w-4 h-4 text-indigo-600 rounded bg-[var(--input-bg)] border-[var(--border)] focus:ring-indigo-500"
-                    />
-                    <span>Available on Shelf</span>
-                  </label>
-                </div>
-              </div>
-
-              {/* Image Handling (URL or Local Counter Upload) */}
-              <div className="space-y-2">
-                <label className="block text-xs font-semibold text-[var(--foreground)]">
-                  Product Image (URL or Counter Photo)
-                </label>
-                
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={formImageUrl}
-                    onChange={(e) => setFormImageUrl(e.target.value)}
-                    placeholder="https://images.unsplash.com/... or upload below"
-                    className="admin-input flex-1"
-                  />
-                  
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handleImageFileSelected}
-                    accept="image/*"
-                    className="hidden"
-                  />
-
-                  <button
-                    type="button"
-                    disabled={uploadingImage}
-                    onClick={() => fileInputRef.current?.click()}
-                    className="admin-btn-secondary px-3 flex items-center gap-1.5 whitespace-nowrap min-h-[42px]"
-                    title="Upload photo from mobile counter or storage"
-                  >
-                    {uploadingImage ? (
-                      <RefreshCw className="w-4 h-4 animate-spin text-indigo-500" />
+              {/* 2. Product Summary Card */}
+              <div className="bg-[#111827] border border-[#334155] rounded-xl p-3.5 sm:p-4 shadow-sm flex items-center justify-between gap-3.5">
+                <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                  <div className="w-11 h-11 sm:w-16 sm:h-16 rounded-xl bg-[#0B1220] border border-[#334155] p-1 shrink-0 flex items-center justify-center overflow-hidden">
+                    {formImageUrl ? (
+                      <img
+                        src={formImageUrl}
+                        alt={formName || 'Product'}
+                        className="w-full h-full object-contain"
+                        onError={(e) => {
+                          e.target.src = "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop&q=80";
+                        }}
+                      />
                     ) : (
-                      <Upload className="w-4 h-4 text-indigo-500" />
+                      <Smartphone className="w-6 h-6 text-[#64748B]" />
                     )}
-                    <span className="text-xs font-bold">{uploadingImage ? 'Uploading...' : 'Upload'}</span>
-                  </button>
-                </div>
-
-                {uploadSuccessMsg && (
-                  <div className="flex items-center gap-2 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold animate-card-fade">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                    <span>{uploadSuccessMsg}</span>
                   </div>
-                )}
 
-                {uploadErrorMsg && (
-                  <div className="flex items-center gap-2 p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-semibold animate-card-fade">
-                    <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
-                    <span>{uploadErrorMsg}</span>
-                  </div>
-                )}
+                  <div className="min-w-0">
+                    <h4 className="text-sm sm:text-base font-bold text-[#F8FAFC] truncate">
+                      {formName || 'Untitled Product'}
+                    </h4>
+                    <p className="text-xs text-[#94A3B8] truncate mt-0.5">
+                      {formBrand} {formModel ? `• ${formModel}` : ''} {formCategory ? `• ${formCategory}` : ''}
+                    </p>
+                    
+                    <div className="flex items-center gap-2 mt-2 flex-wrap">
+                      {/* Live Stock Badge */}
+                      {calculatedStockStatus === 'IN STOCK' && (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          In Stock ({formStockCount} units)
+                        </span>
+                      )}
+                      {calculatedStockStatus === 'LOW STOCK' && (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold text-amber-400 bg-amber-500/10 border border-amber-500/30">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                          {parseInt(formStockCount, 10) > 0 ? `Low Stock (${formStockCount} left)` : 'Low Stock'}
+                        </span>
+                      )}
+                      {calculatedStockStatus === 'OUT OF STOCK' && (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold text-rose-400 bg-rose-500/10 border border-rose-500/30">
+                          <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
+                          Out of Stock
+                        </span>
+                      )}
+                      {calculatedStockStatus === 'COMING SOON' && (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold text-blue-400 bg-blue-500/10 border border-blue-500/30">
+                          <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                          Coming Soon
+                        </span>
+                      )}
 
-                {formImageUrl && (
-                  <div className="flex items-center gap-3 p-2 rounded-xl bg-white/5 border border-[var(--border)]">
-                    <img
-                      src={formImageUrl}
-                      alt="Preview"
-                      className="w-12 h-12 object-contain rounded-lg border border-[var(--border)] bg-white/5"
-                      onError={(e) => {
-                        e.target.src = "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop&q=80";
-                      }}
-                    />
-                    <div className="text-[11px] text-[var(--muted-foreground)] truncate flex-1">
-                      <span className="font-semibold text-[var(--foreground)] block">Image Preview</span>
-                      <span className="truncate block">{formImageUrl}</span>
+                      {formPrice && (
+                        <span className="text-xs font-bold text-[#F8FAFC]">
+                          ₹{parseFloat(formPrice).toLocaleString()}
+                        </span>
+                      )}
                     </div>
                   </div>
-                )}
-              </div>
-
-              {/* Description */}
-              <div>
-                <label className="block text-xs font-semibold text-[var(--foreground)] mb-1.5">
-                  Description / Counter Notes
-                </label>
-                <textarea
-                  rows={2}
-                  value={formDescription}
-                  onChange={(e) => setFormDescription(e.target.value)}
-                  placeholder="Key features, condition assessment, included accessories in box..."
-                  className="admin-input py-2 text-xs"
-                />
-              </div>
-
-              {/* EMI Eligibility Flags */}
-              <div className="pt-2 border-t border-[var(--border)]">
-                <span className="block text-xs font-semibold text-[var(--foreground)] mb-2">
-                  Finance & EMI Eligibility (Displayed to Customer)
-                </span>
-                <div className="grid grid-cols-3 gap-2">
-                  <label className="flex items-center gap-2 p-2 rounded-xl bg-[var(--card-elevated)] border border-[var(--border)] text-[11px] font-medium text-[var(--foreground)] cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formEmiBajaj}
-                      onChange={(e) => setFormEmiBajaj(e.target.checked)}
-                      className="rounded text-indigo-600 focus:ring-indigo-500"
-                    />
-                    <span>Bajaj 0%</span>
-                  </label>
-
-                  <label className="flex items-center gap-2 p-2 rounded-xl bg-[var(--card-elevated)] border border-[var(--border)] text-[11px] font-medium text-[var(--foreground)] cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formEmiTvs}
-                      onChange={(e) => setFormEmiTvs(e.target.checked)}
-                      className="rounded text-indigo-600 focus:ring-indigo-500"
-                    />
-                    <span>TVS Credit</span>
-                  </label>
-
-                  <label className="flex items-center gap-2 p-2 rounded-xl bg-[var(--card-elevated)] border border-[var(--border)] text-[11px] font-medium text-[var(--foreground)] cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formEmiSamsung}
-                      onChange={(e) => setFormEmiSamsung(e.target.checked)}
-                      className="rounded text-indigo-600 focus:ring-indigo-500"
-                    />
-                    <span>Samsung+</span>
-                  </label>
                 </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="pt-3 border-t border-[var(--border)] flex gap-2.5">
+              {/* 3. Accordion Cards */}
+              <div className="space-y-3">
+
+                {/* ACCORDION 1: Basic Information */}
+                <div className="bg-[#111827] border border-[#334155] rounded-xl overflow-hidden shadow-sm transition-colors">
+                  <button
+                    type="button"
+                    onClick={() => toggleSection('basic')}
+                    className="w-full p-3.5 sm:p-4 flex items-center justify-between gap-3 text-left hover:bg-white/[0.02] transition-colors"
+                  >
+                    <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                      <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-[#2563EB] flex items-center justify-center shrink-0 border border-blue-500/20">
+                        <Smartphone className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <h4 className="text-xs sm:text-sm font-bold text-[#F8FAFC]">Basic Information</h4>
+                        <p className="text-[11px] text-[#94A3B8] truncate">Product name, brand, model, category, condition</p>
+                      </div>
+                    </div>
+                    <div className="shrink-0 text-[#94A3B8] p-1">
+                      {openSections.basic ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </div>
+                  </button>
+
+                  {openSections.basic && (
+                    <div className="p-3.5 sm:p-4 border-t border-[#334155]/60 space-y-3.5 bg-[#111827]">
+                      {/* Product Title / Name */}
+                      <div>
+                        <label className="block text-xs font-semibold text-[#E2E8F0] mb-1.5">
+                          Product Title / Name <span className="text-rose-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={formName}
+                          onChange={(e) => setFormName(e.target.value)}
+                          placeholder="e.g. Samsung Galaxy S24 Ultra 5G"
+                          className="admin-input"
+                        />
+                      </div>
+
+                      {/* Brand, Model, Category */}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                          <label className="block text-xs font-semibold text-[#E2E8F0] mb-1.5">
+                            Brand <span className="text-rose-500">*</span>
+                          </label>
+                          <select
+                            value={formBrand}
+                            onChange={(e) => setFormBrand(e.target.value)}
+                            className="admin-input"
+                          >
+                            <option value="Samsung">Samsung</option>
+                            <option value="Vivo">Vivo</option>
+                            <option value="Apple">Apple</option>
+                            <option value="OnePlus">OnePlus</option>
+                            <option value="Realme">Realme</option>
+                            <option value="Xiaomi">Xiaomi / Redmi</option>
+                            <option value="Oppo">Oppo</option>
+                            <option value="Motorola">Motorola</option>
+                            <option value="Other">Other</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold text-[#E2E8F0] mb-1.5">
+                            Model
+                          </label>
+                          <input
+                            type="text"
+                            value={formModel}
+                            onChange={(e) => setFormModel(e.target.value)}
+                            placeholder="e.g. S24 Ultra"
+                            className="admin-input"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold text-[#E2E8F0] mb-1.5">
+                            Category <span className="text-rose-500">*</span>
+                          </label>
+                          <select
+                            value={formCategory}
+                            onChange={(e) => setFormCategory(e.target.value)}
+                            className="admin-input"
+                          >
+                            {CATEGORIES.map((cat) => (
+                              <option key={cat} value={cat}>{cat}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Condition */}
+                      <div>
+                        <label className="block text-xs font-semibold text-[#E2E8F0] mb-1.5">
+                          Device Condition <span className="text-rose-500">*</span>
+                        </label>
+                        <select
+                          value={formCondition}
+                          onChange={(e) => setFormCondition(e.target.value)}
+                          className="admin-input"
+                        >
+                          <option value="new">Brand New (Box Pack / Sealed)</option>
+                          <option value="like_new">Certified Refurbished (Like New)</option>
+                          <option value="good">Pre-Owned (Good Condition)</option>
+                          <option value="fair">Budget Pre-Owned (Fair Condition)</option>
+                        </select>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* ACCORDION 2: Pricing & Stock */}
+                <div className="bg-[#111827] border border-[#334155] rounded-xl overflow-hidden shadow-sm transition-colors">
+                  <button
+                    type="button"
+                    onClick={() => toggleSection('pricing')}
+                    className="w-full p-3.5 sm:p-4 flex items-center justify-between gap-3 text-left hover:bg-white/[0.02] transition-colors"
+                  >
+                    <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                      <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/20">
+                        <IndianRupee className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <h4 className="text-xs sm:text-sm font-bold text-[#F8FAFC]">Pricing & Stock</h4>
+                        <p className="text-[11px] text-[#94A3B8] truncate">
+                          {formPrice ? `Selling ₹${parseFloat(formPrice).toLocaleString()}` : 'Selling price'} • {formStockCount} units in stock
+                        </p>
+                      </div>
+                    </div>
+                    <div className="shrink-0 text-[#94A3B8] p-1">
+                      {openSections.pricing ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </div>
+                  </button>
+
+                  {openSections.pricing && (
+                    <div className="p-3.5 sm:p-4 border-t border-[#334155]/60 space-y-3.5 bg-[#111827]">
+                      {/* Pricing Row */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-semibold text-[#E2E8F0] mb-1.5">
+                            Selling Price (₹) <span className="text-rose-500">*</span>
+                          </label>
+                          <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-emerald-400">
+                              ₹
+                            </span>
+                            <input
+                              type="number"
+                              required
+                              min="0"
+                              value={formPrice}
+                              onChange={(e) => setFormPrice(e.target.value)}
+                              placeholder="41999"
+                              className="admin-input !pl-8 font-semibold text-emerald-400 text-sm"
+                              style={{ paddingLeft: '2rem' }}
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold text-[#E2E8F0] mb-1.5">
+                            Original Price / MRP (₹)
+                          </label>
+                          <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-[#64748B]">
+                              ₹
+                            </span>
+                            <input
+                              type="number"
+                              min="0"
+                              value={formOriginalPrice}
+                              onChange={(e) => setFormOriginalPrice(e.target.value)}
+                              placeholder="46999 (for discount calculation)"
+                              className="admin-input !pl-8 text-sm"
+                              style={{ paddingLeft: '2rem' }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Stock Control Card */}
+                      <div className="p-3.5 rounded-xl bg-[#172033] border border-[#334155] space-y-3">
+                        <div className="text-xs font-bold text-[#F8FAFC] flex items-center gap-1.5">
+                          <Package className="w-4 h-4 text-[#2563EB]" />
+                          <span>Counter Inventory & Stock Status Control</span>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-xs font-semibold text-[#E2E8F0] mb-1.5">
+                              Stock Quantity (Units)
+                            </label>
+                            <input
+                              type="number"
+                              min="0"
+                              value={formStockCount}
+                              onChange={(e) => setFormStockCount(e.target.value)}
+                              placeholder="5"
+                              className="admin-input"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-semibold text-[#E2E8F0] mb-1.5">
+                              Stock Status Mode
+                            </label>
+                            <select
+                              value={formStockStatus}
+                              onChange={(e) => setFormStockStatus(e.target.value)}
+                              className="admin-input text-xs"
+                            >
+                              <option value="AUTO">Auto Calculate (from units)</option>
+                              <option value="IN STOCK">IN STOCK (&gt;5 units)</option>
+                              <option value="LOW STOCK">LOW STOCK (1-5 units)</option>
+                              <option value="OUT OF STOCK">OUT OF STOCK (0 units)</option>
+                              <option value="COMING SOON">COMING SOON</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div className="pt-2 border-t border-[#334155]/60 flex items-center justify-between">
+                          <div>
+                            <span className="text-xs font-semibold text-[#F8FAFC] block">
+                              Available on Shelf
+                            </span>
+                            <span className="text-[11px] text-[#94A3B8] block">
+                              Enable product visibility for store customers
+                            </span>
+                          </div>
+                          <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={formStock}
+                              onChange={(e) => setFormStock(e.target.checked)}
+                              className="sr-only peer"
+                            />
+                            <div className="w-11 h-6 bg-[#334155] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#2563EB]"></div>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* ACCORDION 3: Specifications */}
+                <div className="bg-[#111827] border border-[#334155] rounded-xl overflow-hidden shadow-sm transition-colors">
+                  <button
+                    type="button"
+                    onClick={() => toggleSection('specs')}
+                    className="w-full p-3.5 sm:p-4 flex items-center justify-between gap-3 text-left hover:bg-white/[0.02] transition-colors"
+                  >
+                    <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                      <div className="w-8 h-8 rounded-lg bg-indigo-500/10 text-[#6366F1] flex items-center justify-center shrink-0 border border-indigo-500/20">
+                        <Sliders className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <h4 className="text-xs sm:text-sm font-bold text-[#F8FAFC]">Specifications</h4>
+                        <p className="text-[11px] text-[#94A3B8] truncate">RAM, storage, color, battery health, edition variant</p>
+                      </div>
+                    </div>
+                    <div className="shrink-0 text-[#94A3B8] p-1">
+                      {openSections.specs ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </div>
+                  </button>
+
+                  {openSections.specs && (
+                    <div className="p-3.5 sm:p-4 border-t border-[#334155]/60 space-y-3.5 bg-[#111827]">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                          <label className="block text-xs font-semibold text-[#E2E8F0] mb-1.5">
+                            RAM / Storage
+                          </label>
+                          <input
+                            type="text"
+                            value={formRamStorage}
+                            onChange={(e) => setFormRamStorage(e.target.value)}
+                            placeholder="e.g. 12GB / 256GB"
+                            className="admin-input"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold text-[#E2E8F0] mb-1.5">
+                            Color Variant
+                          </label>
+                          <input
+                            type="text"
+                            value={formColor}
+                            onChange={(e) => setFormColor(e.target.value)}
+                            placeholder="e.g. Andaman Blue"
+                            className="admin-input"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold text-[#E2E8F0] mb-1.5">
+                            Battery Health
+                          </label>
+                          <input
+                            type="text"
+                            value={formBatteryHealth}
+                            onChange={(e) => setFormBatteryHealth(e.target.value)}
+                            placeholder="e.g. 100% or 92%"
+                            className="admin-input"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-[#E2E8F0] mb-1.5">
+                          Device Variant / Edition (Optional)
+                        </label>
+                        <input
+                          type="text"
+                          value={formVariant}
+                          onChange={(e) => setFormVariant(e.target.value)}
+                          placeholder="e.g. 5G Indian Retail, Global Edition, Titanium Special"
+                          className="admin-input"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* ACCORDION 4: Product Details */}
+                <div className="bg-[#111827] border border-[#334155] rounded-xl overflow-hidden shadow-sm transition-colors">
+                  <button
+                    type="button"
+                    onClick={() => toggleSection('details')}
+                    className="w-full p-3.5 sm:p-4 flex items-center justify-between gap-3 text-left hover:bg-white/[0.02] transition-colors"
+                  >
+                    <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                      <div className="w-8 h-8 rounded-lg bg-sky-500/10 text-sky-400 flex items-center justify-center shrink-0 border border-sky-500/20">
+                        <FileText className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <h4 className="text-xs sm:text-sm font-bold text-[#F8FAFC]">Product Details</h4>
+                        <p className="text-[11px] text-[#94A3B8] truncate">Description and counter sales notes</p>
+                      </div>
+                    </div>
+                    <div className="shrink-0 text-[#94A3B8] p-1">
+                      {openSections.details ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </div>
+                  </button>
+
+                  {openSections.details && (
+                    <div className="p-3.5 sm:p-4 border-t border-[#334155]/60 space-y-3.5 bg-[#111827]">
+                      <div>
+                        <label className="block text-xs font-semibold text-[#E2E8F0] mb-1.5">
+                          Description / Counter Notes
+                        </label>
+                        <textarea
+                          rows={3}
+                          value={formDescription}
+                          onChange={(e) => setFormDescription(e.target.value)}
+                          placeholder="Key features, cosmetic assessment, included box accessories, warranty conditions..."
+                          className="admin-input py-2 text-xs leading-relaxed resize-y"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* ACCORDION 5: Product Images */}
+                <div className="bg-[#111827] border border-[#334155] rounded-xl overflow-hidden shadow-sm transition-colors">
+                  <button
+                    type="button"
+                    onClick={() => toggleSection('images')}
+                    className="w-full p-3.5 sm:p-4 flex items-center justify-between gap-3 text-left hover:bg-white/[0.02] transition-colors"
+                  >
+                    <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                      <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-[#2563EB] flex items-center justify-center shrink-0 border border-blue-500/20">
+                        <ImageIcon className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <h4 className="text-xs sm:text-sm font-bold text-[#F8FAFC]">Product Images</h4>
+                        <p className="text-[11px] text-[#94A3B8] truncate">Image URL or camera/counter upload</p>
+                      </div>
+                    </div>
+                    <div className="shrink-0 text-[#94A3B8] p-1">
+                      {openSections.images ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </div>
+                  </button>
+
+                  {openSections.images && (
+                    <div className="p-3.5 sm:p-4 border-t border-[#334155]/60 space-y-3.5 bg-[#111827]">
+                      <div>
+                        <label className="block text-xs font-semibold text-[#E2E8F0] mb-1.5">
+                          Product Image Source (URL or Local Counter Upload)
+                        </label>
+                        
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={formImageUrl}
+                            onChange={(e) => setFormImageUrl(e.target.value)}
+                            placeholder="https://images.unsplash.com/... or upload below"
+                            className="admin-input flex-1"
+                          />
+                          
+                          <input
+                            type="file"
+                            ref={fileInputRef}
+                            onChange={handleImageFileSelected}
+                            accept="image/*"
+                            className="hidden"
+                          />
+
+                          <button
+                            type="button"
+                            disabled={uploadingImage}
+                            onClick={() => fileInputRef.current?.click()}
+                            className="px-3.5 rounded-xl bg-[#1E293B] hover:bg-[#334155] border border-[#334155] text-white flex items-center gap-1.5 whitespace-nowrap min-h-[42px] transition-colors text-xs font-semibold"
+                            title="Upload photo from mobile counter or storage"
+                          >
+                            {uploadingImage ? (
+                              <RefreshCw className="w-4 h-4 animate-spin text-[#2563EB]" />
+                            ) : (
+                              <Upload className="w-4 h-4 text-[#2563EB]" />
+                            )}
+                            <span>{uploadingImage ? 'Uploading...' : 'Upload Photo'}</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {uploadSuccessMsg && (
+                        <div className="flex items-center gap-2 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold animate-card-fade">
+                          <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+                          <span>{uploadSuccessMsg}</span>
+                        </div>
+                      )}
+
+                      {uploadErrorMsg && (
+                        <div className="flex items-center gap-2 p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-semibold animate-card-fade">
+                          <AlertTriangle className="w-4 h-4 shrink-0 text-rose-400" />
+                          <span>{uploadErrorMsg}</span>
+                        </div>
+                      )}
+
+                      {formImageUrl && (
+                        <div className="flex items-center gap-3 p-3 rounded-xl bg-[#172033] border border-[#334155]">
+                          <img
+                            src={formImageUrl}
+                            alt="Preview"
+                            className="w-14 h-14 object-contain rounded-lg border border-[#334155] bg-[#0B1220] p-1 shrink-0"
+                            onError={(e) => {
+                              e.target.src = "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop&q=80";
+                            }}
+                          />
+                          <div className="text-[11px] text-[#94A3B8] truncate flex-1">
+                            <span className="font-semibold text-[#F8FAFC] block">Image Preview</span>
+                            <span className="truncate block mt-0.5 text-[#64748B]">{formImageUrl}</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* ACCORDION 6: Warranty & Financing */}
+                <div className="bg-[#111827] border border-[#334155] rounded-xl overflow-hidden shadow-sm transition-colors">
+                  <button
+                    type="button"
+                    onClick={() => toggleSection('warranty')}
+                    className="w-full p-3.5 sm:p-4 flex items-center justify-between gap-3 text-left hover:bg-white/[0.02] transition-colors"
+                  >
+                    <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                      <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-[#F59E0B] flex items-center justify-center shrink-0 border border-amber-500/20">
+                        <ShieldCheck className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <h4 className="text-xs sm:text-sm font-bold text-[#F8FAFC]">Warranty & Financing</h4>
+                        <p className="text-[11px] text-[#94A3B8] truncate">Warranty terms and customer EMI eligibility</p>
+                      </div>
+                    </div>
+                    <div className="shrink-0 text-[#94A3B8] p-1">
+                      {openSections.warranty ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </div>
+                  </button>
+
+                  {openSections.warranty && (
+                    <div className="p-3.5 sm:p-4 border-t border-[#334155]/60 space-y-3.5 bg-[#111827]">
+                      <div>
+                        <label className="block text-xs font-semibold text-[#E2E8F0] mb-1.5">
+                          Warranty Coverage Information
+                        </label>
+                        <input
+                          type="text"
+                          value={formWarrantyInfo}
+                          onChange={(e) => setFormWarrantyInfo(e.target.value)}
+                          placeholder="e.g. 1 Year Official Brand Warranty or 6 Months Shop Warranty"
+                          className="admin-input"
+                        />
+                      </div>
+
+                      <div className="pt-2">
+                        <span className="block text-xs font-semibold text-[#E2E8F0] mb-2">
+                          Customer Financing & EMI Eligibility
+                        </span>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                          <label className="flex items-center gap-2.5 p-3 rounded-xl bg-[#172033] border border-[#334155] text-xs font-medium text-[#F8FAFC] cursor-pointer hover:border-slate-500 transition-colors">
+                            <input
+                              type="checkbox"
+                              checked={formEmiBajaj}
+                              onChange={(e) => setFormEmiBajaj(e.target.checked)}
+                              className="w-4 h-4 rounded text-[#2563EB] bg-[#111827] border-[#334155] focus:ring-[#2563EB]"
+                            />
+                            <div>
+                              <span className="font-semibold block">Bajaj Finserv</span>
+                              <span className="text-[10px] text-[#94A3B8] block">0% No Cost EMI</span>
+                            </div>
+                          </label>
+
+                          <label className="flex items-center gap-2.5 p-3 rounded-xl bg-[#172033] border border-[#334155] text-xs font-medium text-[#F8FAFC] cursor-pointer hover:border-slate-500 transition-colors">
+                            <input
+                              type="checkbox"
+                              checked={formEmiTvs}
+                              onChange={(e) => setFormEmiTvs(e.target.checked)}
+                              className="w-4 h-4 rounded text-[#2563EB] bg-[#111827] border-[#334155] focus:ring-[#2563EB]"
+                            />
+                            <div>
+                              <span className="font-semibold block">TVS Credit</span>
+                              <span className="text-[10px] text-[#94A3B8] block">Low Down Payment</span>
+                            </div>
+                          </label>
+
+                          <label className="flex items-center gap-2.5 p-3 rounded-xl bg-[#172033] border border-[#334155] text-xs font-medium text-[#F8FAFC] cursor-pointer hover:border-slate-500 transition-colors">
+                            <input
+                              type="checkbox"
+                              checked={formEmiSamsung}
+                              onChange={(e) => setFormEmiSamsung(e.target.checked)}
+                              className="w-4 h-4 rounded text-[#2563EB] bg-[#111827] border-[#334155] focus:ring-[#2563EB]"
+                            />
+                            <div>
+                              <span className="font-semibold block">Samsung Finance+</span>
+                              <span className="text-[10px] text-[#94A3B8] block">Digital Approval</span>
+                            </div>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+              </div>
+
+              {/* 4. Sticky Bottom Action Bar */}
+              <div className="pt-4 pb-2 border-t border-[#334155] flex items-center justify-between gap-3">
                 <button
                   type="button"
                   disabled={isSubmitting}
                   onClick={() => setIsAddModalOpen(false)}
-                  className="admin-btn-secondary flex-1 min-h-[44px]"
+                  className="px-5 py-2.5 rounded-xl bg-[#1E293B] hover:bg-[#334155] border border-[#334155] text-[#E2E8F0] font-semibold text-xs sm:text-sm min-h-[44px] transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="admin-btn-primary flex-1 min-h-[44px] flex items-center justify-center gap-2"
+                  className="px-6 py-2.5 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] active:scale-95 text-white font-bold text-xs sm:text-sm shadow-md flex items-center justify-center gap-2 min-h-[44px] transition-all disabled:opacity-50"
                 >
                   {isSubmitting ? (
                     <>
@@ -1009,10 +1336,14 @@ export default function ProductsManager({
                       <span>{editingProduct ? 'Updating...' : 'Saving...'}</span>
                     </>
                   ) : (
-                    <span>{editingProduct ? 'Update Product' : 'Save Product'}</span>
+                    <>
+                      <Check className="w-4 h-4" />
+                      <span>{editingProduct ? 'Update Product' : 'Save Product'}</span>
+                    </>
                   )}
                 </button>
               </div>
+
             </form>
           </div>
         </div>
