@@ -9,6 +9,7 @@ from fastapi.testclient import TestClient
 from app.main import app
 from app.security import create_access_token
 from app.database import get_admin_by_username
+from app.config import ADMIN_USERNAME
 
 client = TestClient(app)
 
@@ -16,11 +17,15 @@ def run_e2e_test():
     print("=== STARTING COMPLETE STEP 25 END-TO-END TEST ===")
 
     # 1. Admin Authentication
-    admin = get_admin_by_username("admin")
+    admin = get_admin_by_username(ADMIN_USERNAME) or get_admin_by_username("Amit_MS2026") or get_admin_by_username("admin")
     assert admin, "Admin user not found"
-    token = create_access_token({"sub": admin["id"], "username": admin["username"]})
+    token = create_access_token({
+        "sub": admin["id"],
+        "username": admin["username"],
+        "token_version": admin.get("token_version", 1)
+    })
     auth_headers = {"Authorization": f"Bearer {token}"}
-    print("[Step 1] Admin authenticated successfully.")
+    print(f"[Step 1] Admin ({admin['username']}) authenticated successfully.")
 
     # 2. Add Product
     new_phone = {

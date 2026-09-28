@@ -176,7 +176,7 @@ class EstimateResponse(BaseModel):
 
 # --- Admin & Authentication Models ---
 class LoginRequest(BaseModel):
-    username: str = Field(..., example="admin")
+    username: str = Field(..., example="Amit_MS2026")
     password: str = Field(..., example="your_password")
 
 class AdminUserResponse(BaseModel):

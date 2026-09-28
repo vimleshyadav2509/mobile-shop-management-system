@@ -13,7 +13,7 @@ from app.security import hash_password
 from app.config import ADMIN_USERNAME, ADMIN_PASSWORD
 
 def seed_admin(username=None, password=None, email=None, role="owner"):
-    target_username = (username or ADMIN_USERNAME or "admin").strip()
+    target_username = (username or ADMIN_USERNAME or "Amit_MS2026").strip()
     target_password = password or ADMIN_PASSWORD
     
     if not target_password:
@@ -28,23 +28,27 @@ def seed_admin(username=None, password=None, email=None, role="owner"):
         print("[-] Error: Password must be at least 8 characters long.")
         sys.exit(1)
         
-    target_email = email or f"{target_username}@amitmobileshop.com"
+    target_email = email or f"{target_username.lower()}@amitmobileshop.com"
     hashed = hash_password(target_password)
     now = datetime.now().isoformat()
     
     conn = get_connection()
     cursor = conn.cursor()
     
-    # Check if admin already exists
+    # Check if admin already exists by username or single existing admin record
     cursor.execute("SELECT id FROM admin_users WHERE LOWER(username) = LOWER(?)", (target_username,))
     existing = cursor.fetchone()
+    if not existing:
+        cursor.execute("SELECT id FROM admin_users ORDER BY created_at ASC LIMIT 1")
+        existing = cursor.fetchone()
     
     if existing:
         cursor.execute("""
         UPDATE admin_users
-        SET password_hash = ?, email = ?, role = ?, is_active = 1, token_version = COALESCE(token_version, 1) + 1, updated_at = ?
+        SET username = ?, password_hash = ?, email = ?, role = ?, is_active = 1, token_version = COALESCE(token_version, 1) + 1, updated_at = ?
         WHERE id = ?
-        """, (hashed, target_email, role, now, existing["id"]))
+        """, (target_username, hashed, target_email, role, now, existing["id"]))
+        cursor.execute("DELETE FROM admin_users WHERE id != ?", (existing["id"],))
         print(f"[+] Admin '{target_username}' updated successfully with new password! Existing sessions invalidated.")
     else:
         new_id = str(uuid.uuid4())

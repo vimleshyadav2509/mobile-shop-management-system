@@ -42,7 +42,7 @@ if IS_PRODUCTION:
             "Please configure a cryptographically random secret of at least 32 characters in .env."
         )
 
-ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "admin")
+ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "Amit_MS2026")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "")
 
 if IS_PRODUCTION and ADMIN_PASSWORD.strip() in ("admin123", "password", "12345678", "admin"):

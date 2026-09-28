@@ -4,7 +4,7 @@ import uuid
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 from app.config import SUPABASE_URL, SUPABASE_KEY, ADMIN_USERNAME, ADMIN_PASSWORD, DB_PATH
-from app.security import hash_password
+from app.security import hash_password, verify_password
 
 DB_FILE = DB_PATH
 
@@ -177,16 +177,42 @@ def init_db():
         VALUES ('default', 'Amit Mobile Shop', 'Smartphones, Certified Pre-Owned & Expert Repairs', '+91 98765 43210', '+91 91234 56789', '919876543210', 'contact@amitmobileshop.com', 'Main Market, Station Road, Opp. City Mall, Mirzapur, UP 231001', '10:00 AM', '09:00 PM', 'None (Open All 7 Days)', 'https://maps.google.com', ?)
         """, (datetime.now().isoformat(),))
 
-    # Check if admin user exists and seed if password provided
-    cursor.execute("SELECT COUNT(*) as count FROM admin_users")
-    if cursor.fetchone()["count"] == 0 and ADMIN_PASSWORD:
-        admin_id = str(uuid.uuid4())
-        hashed = hash_password(ADMIN_PASSWORD)
-        now_str = datetime.now().isoformat()
-        cursor.execute("""
-        INSERT INTO admin_users (id, username, email, password_hash, role, is_active, token_version, created_at, updated_at)
-        VALUES (?, ?, ?, ?, 'owner', 1, 1, ?, ?)
-        """, (admin_id, ADMIN_USERNAME, f"{ADMIN_USERNAME}@amitmobileshop.com", hashed, now_str, now_str))
+    # Admin User Synchronization & Seeding:
+    # Safely creates or updates the single admin account using configured ADMIN_USERNAME and ADMIN_PASSWORD
+    cursor.execute("SELECT id, username, password_hash, token_version FROM admin_users ORDER BY created_at ASC LIMIT 1")
+    primary_admin = cursor.fetchone()
+    now_str = datetime.now().isoformat()
+
+    if not primary_admin:
+        # Initial creation if table is completely empty and ADMIN_PASSWORD is provided
+        if ADMIN_PASSWORD:
+            admin_id = str(uuid.uuid4())
+            hashed = hash_password(ADMIN_PASSWORD)
+            cursor.execute("""
+            INSERT INTO admin_users (id, username, email, password_hash, role, is_active, token_version, created_at, updated_at)
+            VALUES (?, ?, ?, ?, 'owner', 1, 1, ?, ?)
+            """, (admin_id, ADMIN_USERNAME, f"{ADMIN_USERNAME.lower()}@amitmobileshop.com", hashed, now_str, now_str))
+    else:
+        admin_id = primary_admin["id"]
+        # 1. Update username & email if ADMIN_USERNAME is configured and differs from current username
+        if ADMIN_USERNAME and primary_admin["username"] != ADMIN_USERNAME:
+            cursor.execute("""
+            UPDATE admin_users
+            SET username = ?, email = ?, updated_at = ?
+            WHERE id = ?
+            """, (ADMIN_USERNAME, f"{ADMIN_USERNAME.lower()}@amitmobileshop.com", now_str, admin_id))
+
+        # 2. Update password if ADMIN_PASSWORD is provided and differs from existing hash
+        if ADMIN_PASSWORD and not verify_password(ADMIN_PASSWORD, primary_admin["password_hash"]):
+            new_hash = hash_password(ADMIN_PASSWORD)
+            cursor.execute("""
+            UPDATE admin_users
+            SET password_hash = ?, token_version = COALESCE(token_version, 1) + 1, updated_at = ?
+            WHERE id = ?
+            """, (new_hash, now_str, admin_id))
+
+        # 3. Guarantee strictly one admin account exists by pruning any duplicate entries
+        cursor.execute("DELETE FROM admin_users WHERE id != ?", (admin_id,))
 
     conn.commit()
     conn.close()
