@@ -315,7 +315,7 @@ Storefront runs on `http://localhost:5173` with Admin portal at `http://localhos
 ## Production Deployment Architecture (Railway Unified Project)
 
 The application is deployed to **Railway** as a unified project managing both services:
-* **Frontend Service**: React + Vite SPA built and served via `vite preview` with automatic SPA routing fallback.
+* **Frontend Service**: React + Vite SPA with fully centralized Hindi & English (`i18n`) language system, first-visit language modal, and persistent preference. Built and served via `vite preview` with automatic SPA routing fallback.
 * **Backend Service**: FastAPI with Uvicorn ASGI server.
 * **Persistent Volume**: Railway Persistent Volume attached to Backend Service at `/var/data` containing:
   - `/var/data/ams_store.db` (Persistent SQLite Database)
