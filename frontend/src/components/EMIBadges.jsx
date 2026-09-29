@@ -13,7 +13,7 @@ export default function EMIBadges({ onOpenCalculator }) {
         <div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-amber-50 text-amber-900 border border-amber-200 text-xs font-semibold mb-2">
             <CreditCard className="w-3.5 h-3.5 text-amber-700" />
-            <span>Authorized Shop Finance Partners</span>
+            <span>{t('emi_badges.authorized_partners')}</span>
           </div>
           <h3 className="text-xl font-bold text-slate-900 font-['Poppins']">
             {t('emi_banner_title')}
@@ -24,11 +24,12 @@ export default function EMIBadges({ onOpenCalculator }) {
         </div>
 
         <button
+          type="button"
           onClick={() => onOpenCalculator({ price: 30000, title: "Custom Smartphone" })}
-          className="btn-primary text-xs shrink-0"
+          className="btn-primary text-xs shrink-0 cursor-pointer"
         >
           <Clock className="w-4 h-4" />
-          <span>{t('open_emi_calc')}</span>
+          <span>{t('emi_badges.open_calculator')}</span>
         </button>
       </div>
 
@@ -40,32 +41,32 @@ export default function EMIBadges({ onOpenCalculator }) {
           <div>
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-bold text-slate-900">
-                {t('bajaj_title')}
+                {t('emi_badges.bajaj_title')}
               </span>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-200">
-                0% Down Payment
+                {t('emi_badges.bajaj_badge')}
               </span>
             </div>
             <p className="text-xs text-slate-600 mb-3 font-normal">
-              {t('bajaj_desc')}
+              {t('emi_badges.bajaj_desc')}
             </p>
             <ul className="space-y-2 text-xs text-slate-700">
               <li className="flex items-center gap-2">
                 <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>Zero Down Payment scheme</span>
+                <span>{t('emi_badges.bajaj_bullet1')}</span>
               </li>
               <li className="flex items-center gap-2">
                 <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>3 to 24 Months repayment</span>
+                <span>{t('emi_badges.bajaj_bullet2')}</span>
               </li>
               <li className="flex items-center gap-2">
                 <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>Instant approval at shop counter</span>
+                <span>{t('emi_badges.bajaj_bullet3')}</span>
               </li>
             </ul>
           </div>
           <div className="mt-4 pt-3 border-t border-slate-200 text-[11px] text-slate-500">
-            Applicable on new & certified refurbished phones
+            {t('emi_badges.bajaj_footer')}
           </div>
         </div>
 
@@ -74,32 +75,32 @@ export default function EMIBadges({ onOpenCalculator }) {
           <div>
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-bold text-slate-900">
-                {t('tvs_title')}
+                {t('emi_badges.tvs_title')}
               </span>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-200">
-                Rural Friendly
+                {t('emi_badges.tvs_badge')}
               </span>
             </div>
             <p className="text-xs text-slate-600 mb-3 font-normal">
-              {t('tvs_desc')}
+              {t('emi_badges.tvs_desc')}
             </p>
             <ul className="space-y-2 text-xs text-slate-700">
               <li className="flex items-center gap-2">
                 <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>Aadhaar card & passbook verification</span>
+                <span>{t('emi_badges.tvs_bullet1')}</span>
               </li>
               <li className="flex items-center gap-2">
                 <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>Lowest down payment facility</span>
+                <span>{t('emi_badges.tvs_bullet2')}</span>
               </li>
               <li className="flex items-center gap-2">
                 <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>Simple process for local villagers</span>
+                <span>{t('emi_badges.tvs_bullet3')}</span>
               </li>
             </ul>
           </div>
           <div className="mt-4 pt-3 border-t border-slate-200 text-[11px] text-slate-500">
-            Special assistance for Khorare & surrounding villages
+            {t('emi_badges.tvs_footer')}
           </div>
         </div>
 
@@ -108,32 +109,32 @@ export default function EMIBadges({ onOpenCalculator }) {
           <div>
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-bold text-slate-900">
-                {t('samsung_title')}
+                {t('emi_badges.samsung_title')}
               </span>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-900 border border-blue-200">
-                Digital Approval
+                {t('emi_badges.samsung_badge')}
               </span>
             </div>
             <p className="text-xs text-slate-600 mb-3 font-normal">
-              {t('samsung_desc')}
+              {t('emi_badges.samsung_desc')}
             </p>
             <ul className="space-y-2 text-xs text-slate-700">
               <li className="flex items-center gap-2">
                 <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>Aadhaar OTP verification in 5 mins</span>
+                <span>{t('emi_badges.samsung_bullet1')}</span>
               </li>
               <li className="flex items-center gap-2">
                 <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>Zero paperwork digital loan</span>
+                <span>{t('emi_badges.samsung_bullet2')}</span>
               </li>
               <li className="flex items-center gap-2">
                 <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>Special schemes on Samsung Galaxy</span>
+                <span>{t('emi_badges.samsung_bullet3')}</span>
               </li>
             </ul>
           </div>
           <div className="mt-4 pt-3 border-t border-slate-200 text-[11px] text-slate-500">
-            Official Samsung digital financing program
+            {t('emi_badges.samsung_footer')}
           </div>
         </div>
 

@@ -26,7 +26,7 @@ export default function CartDrawer() {
     cartMonthlyEmi,
     cartCount
   } = useCart();
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
 
   if (!isCartOpen) return null;
 
@@ -73,10 +73,10 @@ export default function CartDrawer() {
               </div>
               <div>
                 <h3 className="text-base sm:text-lg font-black tracking-tight font-['Poppins']">
-                  {language === 'hi' ? 'आपका मोबाइल बैग' : 'Your Device Bag'}
+                  {t('cart.title')}
                 </h3>
                 <p className="text-xs text-slate-400">
-                  {cartCount} {cartCount === 1 ? 'item' : 'items'} • Amit Mobile Shop
+                  {cartCount} {cartCount === 1 ? t('cart.item') : t('cart.items')} • Amit Mobile Shop
                 </p>
               </div>
             </div>
@@ -84,7 +84,7 @@ export default function CartDrawer() {
             <button
               type="button"
               onClick={closeCart}
-              className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center"
+              className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -96,19 +96,17 @@ export default function CartDrawer() {
               <div className="py-16 text-center text-slate-400 space-y-3">
                 <ShoppingBag className="w-14 h-14 mx-auto opacity-25 text-primary-400" />
                 <h4 className="text-base font-bold text-white">
-                  {language === 'hi' ? 'बैग अभी खाली है' : 'Your bag is empty'}
+                  {t('cart.empty_title')}
                 </h4>
                 <p className="text-xs text-slate-400 max-w-xs mx-auto">
-                  {language === 'hi'
-                    ? 'शोरूम से फोन चुनें और "Buy Now" या "Bag" में जोड़ें।'
-                    : 'Browse our flagship collection and add devices to start your order.'}
+                  {t('cart.empty_desc')}
                 </p>
                 <button
                   type="button"
                   onClick={closeCart}
-                  className="mt-4 px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold border border-white/15 transition"
+                  className="mt-4 px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold border border-white/15 transition cursor-pointer"
                 >
-                  {language === 'hi' ? 'फोन देखना जारी रखें' : 'Explore Smartphones'}
+                  {t('cart.continue_browsing')}
                 </button>
               </div>
             ) : (
@@ -159,7 +157,7 @@ export default function CartDrawer() {
                         <button
                           type="button"
                           onClick={() => updateQuantity(item.cartItemId, -1)}
-                          className="p-1 rounded text-slate-400 hover:text-white hover:bg-white/10 transition"
+                          className="p-1 rounded text-slate-400 hover:text-white hover:bg-white/10 transition cursor-pointer"
                         >
                           <Minus className="w-3 h-3" />
                         </button>
@@ -169,7 +167,7 @@ export default function CartDrawer() {
                         <button
                           type="button"
                           onClick={() => updateQuantity(item.cartItemId, 1)}
-                          className="p-1 rounded text-slate-400 hover:text-white hover:bg-white/10 transition"
+                          className="p-1 rounded text-slate-400 hover:text-white hover:bg-white/10 transition cursor-pointer"
                         >
                           <Plus className="w-3 h-3" />
                         </button>
@@ -181,7 +179,7 @@ export default function CartDrawer() {
                   <button
                     type="button"
                     onClick={() => removeFromCart(item.cartItemId)}
-                    className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition absolute top-2 right-2"
+                    className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition absolute top-2 right-2 cursor-pointer"
                     title="Remove item"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -199,17 +197,17 @@ export default function CartDrawer() {
               <div className="p-3 rounded-xl bg-gold-500/10 border border-gold-500/25 flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2 text-gold-400 font-bold">
                   <CreditCard className="w-4 h-4" />
-                  <span>0% EMI Available:</span>
+                  <span>{t('cart.emi_available')}</span>
                 </div>
                 <span className="text-gold-300 font-extrabold font-['Poppins']">
-                  ₹{cartMonthlyEmi.toLocaleString()} / mo (12M)
+                  ₹{cartMonthlyEmi.toLocaleString()} {t('cart.per_month_12m')}
                 </span>
               </div>
 
               {/* Total Row */}
               <div className="flex items-baseline justify-between text-sm">
                 <span className="text-slate-400 font-medium">
-                  {language === 'hi' ? 'कुल राशि (Total Value):' : 'Cart Total Value:'}
+                  {t('cart.total_value')}
                 </span>
                 <span className="text-2xl font-black text-white font-['Poppins']">
                   ₹{cartTotal.toLocaleString()}
@@ -220,24 +218,22 @@ export default function CartDrawer() {
               <button
                 type="button"
                 onClick={handleWhatsAppCheckout}
-                className="w-full py-3.5 px-4 rounded-xl bg-whatsapp-600 hover:bg-whatsapp-700 text-white font-bold text-sm transition-all shadow-glow-whatsapp flex items-center justify-center gap-2 min-h-[44px]"
+                className="w-full py-3.5 px-4 rounded-xl bg-whatsapp-600 hover:bg-whatsapp-700 text-white font-bold text-sm transition-all shadow-glow-whatsapp flex items-center justify-center gap-2 min-h-[44px] cursor-pointer"
               >
                 <MessageCircle className="w-5 h-5" />
                 <span>
-                  {language === 'hi'
-                    ? 'व्हाट्सएप पर पूरा बैग ऑर्डर करें'
-                    : 'Order Complete Bag on WhatsApp'}
+                  {t('cart.checkout_whatsapp')}
                 </span>
               </button>
 
               <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1">
-                <span>दुकान काउंटर पिकअप व तत्काल 0% EMI</span>
+                <span>{t('cart.pickup_notice')}</span>
                 <button
                   type="button"
                   onClick={clearCart}
-                  className="hover:text-rose-400 transition"
+                  className="hover:text-rose-400 transition cursor-pointer"
                 >
-                  Clear Bag
+                  {t('cart.clear_bag')}
                 </button>
               </div>
             </div>

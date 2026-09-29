@@ -120,7 +120,7 @@ Please confirm document requirements and availability.`;
           />
           <div className="flex justify-between text-[11px] text-slate-500 font-semibold">
             <span>{t('modal_zero_down')}</span>
-            <span>अधिकतम ₹{(price * 0.8).toLocaleString()}</span>
+            <span>{language === 'hi' ? 'अधिकतम' : 'Max'} ₹{(price * 0.8).toLocaleString()}</span>
           </div>
         </div>
 
@@ -135,7 +135,7 @@ Please confirm document requirements and availability.`;
                 key={m}
                 type="button"
                 onClick={() => setTenure(m)}
-                className={`py-2.5 rounded-xl text-xs font-bold transition border-2 ${
+                className={`py-2.5 rounded-xl text-xs font-bold transition border-2 cursor-pointer ${
                   tenure === m
                     ? 'bg-primary-700 text-white border-primary-700 shadow-sm'
                     : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
@@ -151,8 +151,8 @@ Please confirm document requirements and availability.`;
         {plans.length > 0 && (
           <div className="space-y-2 mb-5">
             <label className="text-xs font-bold text-slate-700 block flex items-center justify-between">
-              <span>{language === 'hi' ? 'दुकान की सक्रिय ईएमआई योजनाएं' : 'Featured Store EMI Plans'}</span>
-              <span className="text-[10px] text-primary-600 font-normal">Click to apply plan settings</span>
+              <span>{t('emi_modal.store_plans')}</span>
+              <span className="text-[10px] text-primary-600 font-normal">{t('emi_modal.store_plans_tip')}</span>
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {plans.map((p) => {
@@ -162,7 +162,7 @@ Please confirm document requirements and availability.`;
                     key={p.id}
                     type="button"
                     onClick={() => handleSelectPlan(p)}
-                    className={`p-2.5 text-left rounded-xl text-xs transition border-2 flex items-start justify-between ${
+                    className={`p-2.5 text-left rounded-xl text-xs transition border-2 flex items-start justify-between cursor-pointer ${
                       isSelected
                         ? 'bg-primary-50 border-primary-600 ring-2 ring-primary-100'
                         : 'bg-white border-slate-200 hover:border-slate-300'
@@ -179,7 +179,7 @@ Please confirm document requirements and availability.`;
                     </div>
                     {p.down_payment === 0 && (
                       <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800">
-                        Zero DP
+                        {language === 'hi' ? 'शून्य जमा' : 'Zero DP'}
                       </span>
                     )}
                   </button>

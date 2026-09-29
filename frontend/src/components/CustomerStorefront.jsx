@@ -12,17 +12,16 @@ import {
   Zap,
   Sparkles,
   ShoppingBag,
-  Globe,
-  Share2,
   ExternalLink,
   CheckCircle2,
-  ChevronDown,
   ArrowRight
 } from 'lucide-react';
 import BuyingHub from './BuyingHub/BuyingHub';
 import AccessoriesHub from './AccessoriesHub';
 import RepairingHub from './RepairingHub/RepairingHub';
 import CartDrawer from './CartDrawer';
+import LanguageModal from './LanguageModal';
+import LanguageSelector from './LanguageSelector';
 import { useLanguage } from '../context/LanguageContext';
 import { useCart } from '../context/CartContext';
 import { SHOP_INFO } from '../data/mockData';
@@ -32,17 +31,7 @@ export default function CustomerStorefront() {
   const [activeTab, setActiveTab] = useState('mobiles');
   const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
 
-  let language = 'hi';
-  let toggleLanguage = () => {};
-  try {
-    const langCtx = useLanguage();
-    if (langCtx) {
-      language = langCtx.language || 'hi';
-      toggleLanguage = langCtx.toggleLanguage || (() => {});
-    }
-  } catch (e) {
-    console.warn('[CustomerStorefront] Safe fallback for useLanguage:', e);
-  }
+  const { language = 'hi', t = (k) => k } = useLanguage();
 
   let cartCount = 0;
   let openCart = () => {};
@@ -57,8 +46,6 @@ export default function CustomerStorefront() {
   }
 
   useEffect(() => {
-    document.title = "अमित मोबाइल शॉप — खोड़ारे चौराहा, उत्तर प्रदेश";
-
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
     window.addEventListener('online', handleOnline);
@@ -80,11 +67,14 @@ export default function CustomerStorefront() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col font-sans antialiased selection:bg-blue-600 selection:text-white pb-20 md:pb-0">
       
+      {/* First-Visit / Explicit Language Selection Modal */}
+      <LanguageModal />
+
       {/* Non-blocking Subtle Offline Badge (Bottom Left) */}
       {!isOnline && (
         <div className="hidden sm:flex fixed bottom-5 left-5 z-40 bg-slate-900/90 text-amber-300 border border-amber-500/30 px-3 py-1.5 rounded-full text-xs font-bold shadow-lg items-center gap-1.5 backdrop-blur-xs font-hindi">
           <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-          <span>ऑफ़लाइन मोड (लोकल कैटलॉग)</span>
+          <span>{t('common.offline_mode')}</span>
         </div>
       )}
 
@@ -93,9 +83,9 @@ export default function CustomerStorefront() {
 
       {/* =========================================================================
           1. HEADER & BRANDING BANNER:
-          - Deep Royal Blue Gradient background (from primary-900 to primary-700)
-          - Left: Large, clear bold shop title in Hindi: "अमित मोबाइल शॉप"
-          - Right: Clean Location Badge with Map Pin icon: "Amit Mobile Shop | Khorare, UP 271312"
+          - Deep Royal Blue Gradient background (from blue-950 to primary-700)
+          - Left: Large, clear bold shop title
+          - Right: Clean Location Badge, Language Selector & Utility Controls
           ========================================================================= */}
       <header className="sticky top-0 z-30 bg-gradient-to-r from-blue-950 via-primary-900 to-primary-700 text-white shadow-lg border-b border-primary-800">
         
@@ -105,10 +95,10 @@ export default function CustomerStorefront() {
             <div className="flex items-center gap-4 text-[11px] sm:text-xs">
               <span className="flex items-center gap-1.5 text-amber-300 font-semibold">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span>खोड़ारे चौराहा की मुख्य शाखा</span>
+                <span>{t('header.main_branch')}</span>
               </span>
               <span className="text-white/30 hidden sm:inline">•</span>
-              <span className="text-white/80 hidden sm:inline">समय: सुबह 9:00 से रात 8:30 बजे तक</span>
+              <span className="text-white/80 hidden sm:inline">{t('header.hours_label')}</span>
             </div>
 
             <div className="flex items-center gap-4 text-[11px] sm:text-xs">
@@ -124,7 +114,7 @@ export default function CustomerStorefront() {
                 to="/admin/login"
                 className="text-white/70 hover:text-white transition font-medium"
               >
-                Owner Portal
+                {t('common.owner_portal')}
               </Link>
             </div>
           </div>
@@ -134,7 +124,7 @@ export default function CustomerStorefront() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
           <div className="flex items-center justify-between gap-4">
             
-            {/* Left: Large, Clear Bold Shop Title in Hindi */}
+            {/* Left: Large, Clear Bold Shop Title */}
             <div 
               onClick={() => {
                 setActiveTab('mobiles');
@@ -148,7 +138,7 @@ export default function CustomerStorefront() {
 
               <div>
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black font-hindi tracking-tight text-white drop-shadow-md">
-                  अमित मोबाइल शॉप
+                  {t('common.shop_name')}
                 </h1>
                 <p className="text-xs sm:text-sm text-blue-100 font-medium">
                   Amit Mobile Shop • Khorare Chowraha
@@ -164,7 +154,7 @@ export default function CustomerStorefront() {
                 href={SHOP_INFO.mapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                title="गूगल मैप्स पर दुकान की लोकेशन देखें"
+                title={t('footer.maps_directions')}
                 className="hidden md:flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-semibold backdrop-blur-md transition shadow-xs group"
               >
                 <div className="p-1 rounded-md bg-amber-400/20 text-amber-300">
@@ -176,21 +166,15 @@ export default function CustomerStorefront() {
                 </div>
               </a>
 
-              {/* Language Switch */}
-              <button
-                onClick={toggleLanguage}
-                className="flex items-center gap-1 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-bold transition"
-                title="Change Language"
-              >
-                <Globe className="w-4 h-4 text-amber-300" />
-                <span>{language === 'hi' ? 'English' : 'हिंदी'}</span>
-              </button>
+              {/* Language Switcher Dropdown */}
+              <LanguageSelector />
 
               {/* Shopping Cart Drawer Trigger */}
               <button
+                type="button"
                 onClick={openCart}
-                className="relative p-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white transition shadow-sm"
-                title="View Bag"
+                className="relative p-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white transition shadow-sm cursor-pointer"
+                title={t('common.view_bag')}
               >
                 <ShoppingBag className="w-5 h-5 text-amber-300" />
                 {cartCount > 0 && (
@@ -203,14 +187,16 @@ export default function CustomerStorefront() {
               {/* WhatsApp Quick CTA */}
               <a
                 href={`https://wa.me/${SHOP_INFO.whatsapp}?text=${encodeURIComponent(
-                  'नमस्ते Amit Mobile Shop, मुझे जानकारी चाहिए।'
+                  language === 'hi'
+                    ? 'नमस्ते Amit Mobile Shop, मुझे जानकारी चाहिए।'
+                    : 'Hello Amit Mobile Shop, I need information.'
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hidden sm:flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-black transition shadow-md hover:shadow-lg"
               >
                 <MessageCircle className="w-4 h-4 fill-white text-emerald-500" />
-                <span>व्हाट्सएप</span>
+                <span>{t('common.whatsapp_chat')}</span>
               </a>
 
             </div>
@@ -229,7 +215,7 @@ export default function CustomerStorefront() {
             <MapPin className="w-3.5 h-3.5 text-amber-300 shrink-0" />
             <span className="truncate">Kuk Nagar Grint Rd, Khorare, UP 271312</span>
           </a>
-          <span className="text-emerald-300 font-bold shrink-0">🟢 खुली है</span>
+          <span className="text-emerald-300 font-bold shrink-0">{t('common.open_status')}</span>
         </div>
 
       </header>
@@ -238,8 +224,7 @@ export default function CustomerStorefront() {
       {/* =========================================================================
           2. HERO GREETING SECTION:
           - Soft off-white / light blue background (#F8FAFC)
-          - Prominent, friendly welcome heading in bold Hindi (Noto Sans Devanagari):
-            "नमस्ते ग्राहक! अमित मोबाइल शॉप में आपका स्वागत है!"
+          - Prominent, friendly welcome heading
           ========================================================================= */}
       <section className="bg-[#F8FAFC] border-b border-slate-200/80 pt-8 pb-10 sm:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
@@ -247,32 +232,32 @@ export default function CustomerStorefront() {
           {/* Friendly Eyebrow Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-100/70 border border-blue-200 text-primary-900 text-xs sm:text-sm font-bold font-hindi shadow-xs">
             <Sparkles className="w-4 h-4 text-amber-600" />
-            <span>खोड़ारे चौराहे का नंबर-1 मोबाइल एवं रिपेयरिंग सेंटर</span>
+            <span>{t('hero.eyebrow')}</span>
           </div>
 
-          {/* Prominent Welcome Heading in Bold Hindi */}
+          {/* Prominent Welcome Heading */}
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-black font-hindi text-slate-950 tracking-tight leading-tight">
-            नमस्ते ग्राहक! अमित मोबाइल शॉप में आपका स्वागत है!
+            {t('hero.welcome_title')}
           </h2>
 
           {/* Subtitle & Trust Promises */}
           <p className="max-w-2xl mx-auto text-sm sm:text-base text-slate-600 font-normal leading-relaxed">
-            यहाँ आपको मिलेंगे सभी कंपनियों के नए व पुराने मोबाइल आसान 0% किश्तों पर, सभी ओरिजिनल एक्सेसरीज़ और 1 घंटे में पक्की स्क्रीन व बैटरी रिपेयरिंग।
+            {t('hero.welcome_subtitle')}
           </p>
 
           {/* 3 Quick Assurance Chips */}
           <div className="pt-2 flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-xs sm:text-sm font-bold text-slate-700">
             <span className="inline-flex items-center gap-1.5 bg-white border border-slate-200 px-3.5 py-1.5 rounded-xl shadow-xs">
               <CheckCircle2 className="w-4 h-4 text-blue-600" />
-              <span>0% फाइनेंस (बजाज, टीवीएस, सैमसंग)</span>
+              <span>{t('hero.chip_emi')}</span>
             </span>
             <span className="inline-flex items-center gap-1.5 bg-white border border-slate-200 px-3.5 py-1.5 rounded-xl shadow-xs">
               <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>100% असली सामान व बिल</span>
+              <span>{t('hero.chip_genuine')}</span>
             </span>
             <span className="inline-flex items-center gap-1.5 bg-white border border-slate-200 px-3.5 py-1.5 rounded-xl shadow-xs">
               <CheckCircle2 className="w-4 h-4 text-amber-600" />
-              <span>1 घंटे में फोल्डर / बैटरी चेंज</span>
+              <span>{t('hero.chip_repair')}</span>
             </span>
           </div>
 
@@ -288,11 +273,7 @@ export default function CustomerStorefront() {
       <section className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 -mt-4 sm:-mt-6 z-10 relative">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
           
-          {/* ----------------------------------------------------
-              CARD 1: "नया मोबाइल खरीदें" (New Mobile Purchase)
-              - Color Theme: Vivid Blue Gradient (from-blue-500 to-blue-600)
-              - 3D bottom shadow: shadow-[0_10px_0_#1e40af]
-              ---------------------------------------------------- */}
+          {/* CARD 1: Mobiles */}
           <button
             type="button"
             onClick={() => handleTabChange('mobiles')}
@@ -313,7 +294,7 @@ export default function CustomerStorefront() {
             {activeTab === 'mobiles' && (
               <div className="absolute top-4 right-4 bg-white text-blue-800 text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
-                <span>खुला हुआ</span>
+                <span>{t('category_cards.active_badge')}</span>
               </div>
             )}
 
@@ -330,19 +311,19 @@ export default function CustomerStorefront() {
               {/* Title & Subtitle */}
               <div>
                 <h3 className="text-2xl sm:text-3xl font-black font-hindi text-white tracking-tight drop-shadow-sm">
-                  नया मोबाइल खरीदें
+                  {t('category_cards.mobiles_title')}
                 </h3>
                 <p className="text-blue-100 font-semibold text-sm sm:text-base mt-1.5 font-hindi">
-                  लेटेस्ट स्मार्टफोन, 0% EMI
+                  {t('category_cards.mobiles_subtitle')}
                 </p>
                 <p className="text-xs text-blue-200 mt-1">
-                  iPhone, Samsung, Vivo, OnePlus, Realme
+                  {t('category_cards.mobiles_brands')}
                 </p>
               </div>
 
               {/* Action Prompt */}
               <div className="pt-2 flex items-center justify-between text-xs font-bold text-white/90 border-t border-white/20">
-                <span>स्मार्टफोन मॉडल देखें</span>
+                <span>{t('category_cards.mobiles_action')}</span>
                 <span className="p-1.5 rounded-full bg-white/20 group-hover:translate-x-1 transition-transform">
                   <ArrowRight className="w-4 h-4 text-white" />
                 </span>
@@ -352,11 +333,7 @@ export default function CustomerStorefront() {
           </button>
 
 
-          {/* ----------------------------------------------------
-              CARD 2: "एक्सेसरीज़ खरीदें" (Accessories Purchase)
-              - Color Theme: Emerald Green Gradient (from-emerald-500 to-emerald-600)
-              - 3D bottom shadow: shadow-[0_10px_0_#065f46]
-              ---------------------------------------------------- */}
+          {/* CARD 2: Accessories */}
           <button
             type="button"
             onClick={() => handleTabChange('accessories')}
@@ -377,7 +354,7 @@ export default function CustomerStorefront() {
             {activeTab === 'accessories' && (
               <div className="absolute top-4 right-4 bg-white text-emerald-800 text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
-                <span>खुला हुआ</span>
+                <span>{t('category_cards.active_badge')}</span>
               </div>
             )}
 
@@ -394,19 +371,19 @@ export default function CustomerStorefront() {
               {/* Title & Subtitle */}
               <div>
                 <h3 className="text-2xl sm:text-3xl font-black font-hindi text-white tracking-tight drop-shadow-sm">
-                  एक्सेसरीज़ खरीदें
+                  {t('category_cards.accessories_title')}
                 </h3>
                 <p className="text-emerald-100 font-semibold text-sm sm:text-base mt-1.5 font-hindi">
-                  कवर, चार्जर, इयरफोन, ब्लूटूथ
+                  {t('category_cards.accessories_subtitle')}
                 </p>
                 <p className="text-xs text-emerald-200 mt-1">
-                  11D टेम्पर्ड ग्लास, 65W चार्जर, boAt नेकबैंड
+                  {t('category_cards.accessories_items')}
                 </p>
               </div>
 
               {/* Action Prompt */}
               <div className="pt-2 flex items-center justify-between text-xs font-bold text-white/90 border-t border-white/20">
-                <span>सामान व रेट देखें</span>
+                <span>{t('category_cards.accessories_action')}</span>
                 <span className="p-1.5 rounded-full bg-white/20 group-hover:translate-x-1 transition-transform">
                   <ArrowRight className="w-4 h-4 text-white" />
                 </span>
@@ -416,11 +393,7 @@ export default function CustomerStorefront() {
           </button>
 
 
-          {/* ----------------------------------------------------
-              CARD 3: "मोबाइल रिपेयरिंग" (Mobile Repairing Hub)
-              - Color Theme: Warm Amber/Gold Gradient (from-amber-500 to-amber-600)
-              - 3D bottom shadow: shadow-[0_10px_0_#92400e]
-              ---------------------------------------------------- */}
+          {/* CARD 3: Repairs */}
           <button
             type="button"
             onClick={() => handleTabChange('repairs')}
@@ -441,7 +414,7 @@ export default function CustomerStorefront() {
             {activeTab === 'repairs' && (
               <div className="absolute top-4 right-4 bg-white text-amber-800 text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-amber-600 animate-pulse" />
-                <span>खुला हुआ</span>
+                <span>{t('category_cards.active_badge')}</span>
               </div>
             )}
 
@@ -458,19 +431,19 @@ export default function CustomerStorefront() {
               {/* Title & Subtitle */}
               <div>
                 <h3 className="text-2xl sm:text-3xl font-black font-hindi text-white tracking-tight drop-shadow-sm">
-                  मोबाइल रिपेयरिंग
+                  {t('category_cards.repairs_title')}
                 </h3>
                 <p className="text-amber-100 font-semibold text-sm sm:text-base mt-1.5 font-hindi">
-                  स्क्रीन और बैटरी तुरंत बदलें
+                  {t('category_cards.repairs_subtitle')}
                 </p>
                 <p className="text-xs text-amber-200 mt-1">
-                  1 घंटे में ठीक • असली पार्ट्स • जॉब शीट ट्रैकिंग
+                  {t('category_cards.repairs_features')}
                 </p>
               </div>
 
               {/* Action Prompt */}
               <div className="pt-2 flex items-center justify-between text-xs font-bold text-white/90 border-t border-white/20">
-                <span>रिपेयर खर्च व बुकिंग</span>
+                <span>{t('category_cards.repairs_action')}</span>
                 <span className="p-1.5 rounded-full bg-white/20 group-hover:translate-x-1 transition-transform">
                   <ArrowRight className="w-4 h-4 text-white" />
                 </span>
@@ -485,10 +458,6 @@ export default function CustomerStorefront() {
 
       {/* =========================================================================
           4. CONTENT DISPLAY PANELS (DYNAMIC TAB VIEWS):
-          Below the 3 main 3D buttons, render the selected view based on active tab:
-          - When 'mobiles': Mobile Catalog
-          - When 'accessories': Accessories Grid
-          - When 'repairs': 3-step repair process + booking/estimator
           ========================================================================= */}
       <main id="storefront-tab-content" className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 scroll-mt-24">
         
@@ -506,12 +475,12 @@ export default function CustomerStorefront() {
 
             <div>
               <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                चयनित अनुभाग (Active Section)
+                {t('section_tabs.active_section')}
               </span>
               <h3 className="text-xl sm:text-2xl font-black font-hindi text-slate-900">
-                {activeTab === 'mobiles' && 'नया मोबाइल फोन कैटलॉग (0% EMI)'}
-                {activeTab === 'accessories' && 'ओरिजिनल मोबाइल एक्सेसरीज़ व गैजेट्स'}
-                {activeTab === 'repairs' && 'एक्सप्रेस मोबाइल रिपेयरिंग व एस्टीमेटर'}
+                {activeTab === 'mobiles' && t('section_tabs.mobiles_section_title')}
+                {activeTab === 'accessories' && t('section_tabs.accessories_section_title')}
+                {activeTab === 'repairs' && t('section_tabs.repairs_section_title')}
               </h3>
             </div>
           </div>
@@ -519,28 +488,31 @@ export default function CustomerStorefront() {
           {/* Quick Tab Switcher Pills */}
           <div className="inline-flex p-1 rounded-xl bg-slate-200/80 border border-slate-300 text-xs font-bold w-full sm:w-auto">
             <button
+              type="button"
               onClick={() => handleTabChange('mobiles')}
-              className={`flex-1 sm:flex-none px-4 py-2 rounded-lg transition ${
+              className={`flex-1 sm:flex-none px-4 py-2 rounded-lg transition cursor-pointer ${
                 activeTab === 'mobiles' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-700 hover:text-slate-900'
               }`}
             >
-              मोबाइल
+              {t('section_tabs.pill_mobiles')}
             </button>
             <button
+              type="button"
               onClick={() => handleTabChange('accessories')}
-              className={`flex-1 sm:flex-none px-4 py-2 rounded-lg transition ${
+              className={`flex-1 sm:flex-none px-4 py-2 rounded-lg transition cursor-pointer ${
                 activeTab === 'accessories' ? 'bg-emerald-600 text-white shadow-xs' : 'text-slate-700 hover:text-slate-900'
               }`}
             >
-              एक्सेसरीज़
+              {t('section_tabs.pill_accessories')}
             </button>
             <button
+              type="button"
               onClick={() => handleTabChange('repairs')}
-              className={`flex-1 sm:flex-none px-4 py-2 rounded-lg transition ${
+              className={`flex-1 sm:flex-none px-4 py-2 rounded-lg transition cursor-pointer ${
                 activeTab === 'repairs' ? 'bg-amber-600 text-white shadow-xs' : 'text-slate-700 hover:text-slate-900'
               }`}
             >
-              रिपेयरिंग
+              {t('section_tabs.pill_repairs')}
             </button>
           </div>
         </div>
@@ -569,10 +541,6 @@ export default function CustomerStorefront() {
 
       {/* =========================================================================
           5. FOOTER & LIVE SHOP STATUS BAR:
-          - Bottom Bar with clean layout:
-            Left: Green pulse dot with text "🟢 दुकान खुली है" (Store Open Status).
-            Center: Social links (Facebook, Instagram, Twitter/X, YouTube).
-            Right: Bright WhatsApp CTA button ("WhatsApp करें") linked to +91 6306657432
           ========================================================================= */}
       
       {/* Mobile Sticky Live Action Bar (Always Available on Mobile) */}
@@ -580,7 +548,7 @@ export default function CustomerStorefront() {
         <div className="flex items-center gap-2">
           <span className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse shrink-0" />
           <div className="text-left leading-tight">
-            <span className="text-xs font-black text-slate-900 block font-hindi">🟢 दुकान खुली है</span>
+            <span className="text-xs font-black text-slate-900 block font-hindi">{t('common.open_status')}</span>
             <span className="text-[10px] text-slate-500 font-medium">9 AM - 8:30 PM</span>
           </div>
         </div>
@@ -589,21 +557,23 @@ export default function CustomerStorefront() {
           <a
             href={`tel:${SHOP_INFO.phone1}`}
             className="p-2.5 rounded-xl bg-slate-100 text-slate-800 border border-slate-200"
-            title="कॉल करें"
+            title={t('common.call_now')}
           >
             <Phone className="w-4 h-4 text-blue-700" />
           </a>
 
           <a
             href={`https://wa.me/${SHOP_INFO.whatsapp}?text=${encodeURIComponent(
-              'नमस्ते Amit Mobile Shop, मुझे जानकारी चाहिए।'
+              language === 'hi'
+                ? 'नमस्ते Amit Mobile Shop, मुझे जानकारी चाहिए।'
+                : 'Hello Amit Mobile Shop, I need information.'
             )}`}
             target="_blank"
             rel="noopener noreferrer"
             className="px-4 py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-black flex items-center gap-1.5 shadow-md font-hindi"
           >
             <MessageCircle className="w-4 h-4 fill-white text-emerald-600" />
-            <span>WhatsApp करें</span>
+            <span>{t('common.whatsapp_chat')}</span>
           </a>
         </div>
       </div>
@@ -615,22 +585,22 @@ export default function CustomerStorefront() {
           {/* Status Bar for Tablet & Desktop */}
           <div className="bg-slate-800/90 border border-slate-700 rounded-2xl p-4 sm:p-5 mb-10 flex flex-col md:flex-row items-center justify-between gap-4 shadow-md">
             
-            {/* Left: Green pulse dot with text "🟢 दुकान खुली है" */}
+            {/* Left: Green pulse dot with store open status */}
             <div className="flex items-center gap-3">
               <div className="w-3.5 h-3.5 rounded-full bg-emerald-400 animate-ping shrink-0" />
               <div className="flex items-center gap-2">
                 <span className="text-base sm:text-lg font-black text-white font-hindi">
-                  🟢 दुकान खुली है
+                  {t('footer.store_open')}
                 </span>
                 <span className="text-xs text-slate-400 font-mono">
-                  (प्रतिदिन: 9:00 AM – 8:30 PM)
+                  {t('footer.hours_detailed')}
                 </span>
               </div>
             </div>
 
             {/* Center: Social Links */}
             <div className="flex items-center gap-3">
-              <span className="text-xs text-slate-400 font-semibold mr-1">सोशल मीडिया:</span>
+              <span className="text-xs text-slate-400 font-semibold mr-1">{t('footer.social_media')}</span>
               
               <a
                 href="https://facebook.com"
@@ -676,14 +646,16 @@ export default function CustomerStorefront() {
             {/* Right: Bright WhatsApp CTA Button */}
             <a
               href={`https://wa.me/${SHOP_INFO.whatsapp}?text=${encodeURIComponent(
-                'नमस्ते Amit Mobile Shop, मुझे जानकारी चाहिए।'
+                language === 'hi'
+                  ? 'नमस्ते Amit Mobile Shop, मुझे जानकारी चाहिए।'
+                  : 'Hello Amit Mobile Shop, I need information.'
               )}`}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full md:w-auto px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-sm transition-all duration-200 shadow-lg hover:shadow-emerald-500/30 flex items-center justify-center gap-2 font-hindi"
             >
               <MessageCircle className="w-5 h-5 fill-white text-emerald-500" />
-              <span>WhatsApp करें (+91 6306657432)</span>
+              <span>{t('footer.whatsapp_cta')}</span>
             </a>
 
           </div>
@@ -698,22 +670,22 @@ export default function CustomerStorefront() {
                   <Smartphone className="w-4 h-4" />
                 </div>
                 <span className="text-base font-black text-white font-hindi">
-                  अमित मोबाइल शॉप
+                  {t('common.shop_name')}
                 </span>
               </div>
               <p className="text-xs text-slate-400 leading-relaxed font-normal">
-                खोड़ारे चौराहा, कुक नगर ग्रिंट रोड की विश्वसनीय मोबाइल व एक्सेसरीज़ शॉप। सभी नए फोन, 0% EMI और एक्सप्रेस रिपेयर।
+                {t('footer.tagline')}
               </p>
               <div className="flex items-center gap-2 text-emerald-400 font-bold">
                 <ShieldCheck className="w-4 h-4" />
-                <span>100% पक्की दुकान वारंटी व बिल</span>
+                <span>{t('common.brand_warranty')}</span>
               </div>
             </div>
 
             {/* Col 2: Location & Address */}
             <div className="space-y-3">
               <h4 className="font-bold text-white uppercase tracking-wider text-xs">
-                दुकान का पता
+                {t('footer.col_location_title')}
               </h4>
               <div className="flex items-start gap-2 text-slate-300">
                 <MapPin className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
@@ -721,7 +693,7 @@ export default function CustomerStorefront() {
               </div>
               <div className="flex items-center gap-2 text-slate-300">
                 <Clock className="w-4 h-4 text-amber-400 shrink-0" />
-                <span>प्रतिदिन: 9:00 AM – 8:30 PM</span>
+                <span>{t('footer.hours_text')}</span>
               </div>
               <a
                 href={SHOP_INFO.mapsUrl}
@@ -729,7 +701,7 @@ export default function CustomerStorefront() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 text-blue-400 hover:text-blue-300 font-bold"
               >
-                <span>Google Maps पर रास्ता देखें</span>
+                <span>{t('footer.maps_directions')}</span>
                 <ExternalLink className="w-3 h-3" />
               </a>
             </div>
@@ -737,7 +709,7 @@ export default function CustomerStorefront() {
             {/* Col 3: Contact Helpline */}
             <div className="space-y-3">
               <h4 className="font-bold text-white uppercase tracking-wider text-xs">
-                संपर्क एवं फोन
+                {t('footer.col_contact_title')}
               </h4>
               <div className="space-y-2">
                 <a
@@ -745,14 +717,14 @@ export default function CustomerStorefront() {
                   className="flex items-center gap-2 text-slate-300 hover:text-white transition"
                 >
                   <Phone className="w-4 h-4 text-blue-400" />
-                  <span>+91 {SHOP_INFO.phone1} (अमित भाई)</span>
+                  <span>{t('footer.phone_amit')}</span>
                 </a>
                 <a
                   href={`tel:${SHOP_INFO.phone2}`}
                   className="flex items-center gap-2 text-slate-300 hover:text-white transition"
                 >
                   <Phone className="w-4 h-4 text-blue-400" />
-                  <span>+91 {SHOP_INFO.phone2} (दुकान हेल्पलाइन)</span>
+                  <span>{t('footer.phone_helpline')}</span>
                 </a>
                 <a
                   href={`https://wa.me/${SHOP_INFO.whatsapp}`}
@@ -769,14 +741,14 @@ export default function CustomerStorefront() {
             {/* Col 4: Services & EMI Partners */}
             <div className="space-y-3">
               <h4 className="font-bold text-white uppercase tracking-wider text-xs">
-                सुविधाएं एवं फाइनेंस
+                {t('footer.col_services_title')}
               </h4>
               <ul className="space-y-1.5 text-slate-400">
-                <li>• बजाज फिनसर्व 0% आसान किश्त</li>
-                <li>• टीवीएस क्रेडिट ग्रामीण मोबाइल लोन</li>
-                <li>• सैमसंग फाइनेंस+ डिजिटल अप्रूवल</li>
-                <li>• 1 घंटे में कॉम्बो / स्क्रीन रिप्लेसमेंट</li>
-                <li>• ओरिजिनल 65W/33W चार्जर व बैक कवर</li>
+                <li>• {t('footer.svc_bajaj')}</li>
+                <li>• {t('footer.svc_tvs')}</li>
+                <li>• {t('footer.svc_samsung')}</li>
+                <li>• {t('footer.svc_repair')}</li>
+                <li>• {t('footer.svc_chargers')}</li>
               </ul>
             </div>
 
@@ -784,15 +756,15 @@ export default function CustomerStorefront() {
 
           {/* Bottom Copyright & Admin Link */}
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-            <p>© {new Date().getFullYear()} अमित मोबाइल शॉप (Amit Mobile Shop). सर्वाधिकार सुरक्षित।</p>
+            <p>© {new Date().getFullYear()} {t('common.shop_name')} (Amit Mobile Shop). {t('footer.copyright')}</p>
             <div className="flex items-center gap-4">
-              <span>खोड़ारे, उत्तर प्रदेश 271312</span>
+              <span>{t('common.shop_location')}</span>
               <span>•</span>
               <Link
                 to="/admin/login"
                 className="text-slate-400 hover:text-white font-semibold transition"
               >
-                दुकानदार लॉगिन (Owner Portal)
+                {t('footer.owner_portal_link')}
               </Link>
             </div>
           </div>

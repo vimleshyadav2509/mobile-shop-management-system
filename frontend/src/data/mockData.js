@@ -231,13 +231,16 @@ export const INITIAL_ACCESSORIES = [
     title_hi: "11D सुपर स्ट्रांग टेम्पर्ड ग्लास",
     category: "glass",
     category_hi: "टेम्पर्ड ग्लास",
+    category_en: "Tempered Glass",
     brand: "Gorilla Armor",
     price: 99,
     original_price: 199,
     warranty_info: "काउंटर पर टेस्टिंग गारंटी",
+    warranty_info_en: "Counter Testing Guarantee",
     in_stock: true,
     image_url: "https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=600&auto=format&fit=crop&q=80",
-    description: "सभी मोबाइल मॉडल्स के लिए फुल स्क्रीन 11D कर्व्ड एज प्रोटेक्शन ग्लास। स्क्रैच और गिरने से बचाए।"
+    description: "सभी मोबाइल मॉडल्स के लिए फुल स्क्रीन 11D कर्व्ड एज प्रोटेक्शन ग्लास। स्क्रैच और गिरने से बचाए।",
+    description_en: "Full screen 11D curved edge protection glass for all smartphone models. Prevents scratches and drop cracks."
   },
   {
     id: "acc-2",
@@ -245,13 +248,16 @@ export const INITIAL_ACCESSORIES = [
     title_hi: "65W सुपर फास्ट चार्जर (Type-C to C)",
     category: "chargers",
     category_hi: "फास्ट चार्जर",
+    category_en: "Fast Chargers",
     brand: "FlashPower Pro",
     price: 599,
     original_price: 999,
     warranty_info: "6 महीने की दुकान वारंटी",
+    warranty_info_en: "6 Months Shop Warranty",
     in_stock: true,
     image_url: "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=600&auto=format&fit=crop&q=80",
-    description: "Realme, Oppo, OnePlus, Samsung के लिए 65W रैपिड फास्ट चार्जिंग सपोर्ट। सुरक्षित ओवरहीट प्रोटेक्शन।"
+    description: "Realme, Oppo, OnePlus, Samsung के लिए 65W रैपिड फास्ट चार्जिंग सपोर्ट। सुरक्षित ओवरहीट प्रोटेक्शन।",
+    description_en: "65W rapid fast charging support for Realme, Oppo, OnePlus and Samsung. Safe overheat protection."
   },
   {
     id: "acc-3",
@@ -259,13 +265,16 @@ export const INITIAL_ACCESSORIES = [
     title_hi: "33W सोनिकचार्ज फास्ट एडाप्टर",
     category: "chargers",
     category_hi: "फास्ट चार्जर",
+    category_en: "Fast Chargers",
     brand: "PowerVolt",
     price: 399,
     original_price: 699,
     warranty_info: "6 महीने की दुकान वारंटी",
+    warranty_info_en: "6 Months Shop Warranty",
     in_stock: true,
     image_url: "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=600&auto=format&fit=crop&q=80",
-    description: "Xiaomi, Redmi, Vivo के लिए 33W क्विक चार्ज 3.0 वॉल चार्जर। मजबूत व टिकाऊ बिल्ड।"
+    description: "Xiaomi, Redmi, Vivo के लिए 33W क्विक चार्ज 3.0 वॉल चार्जर। मजबूत व टिकाऊ बिल्ड।",
+    description_en: "33W Quick Charge 3.0 wall charger for Xiaomi, Redmi, Vivo. Durable and sturdy build."
   },
   {
     id: "acc-4",
@@ -273,13 +282,16 @@ export const INITIAL_ACCESSORIES = [
     title_hi: "boAt रॉकर्ज वायरलेस ब्लूटूथ नेकबैंड",
     category: "earphones",
     category_hi: "इयरफोन / ब्लूटूथ",
+    category_en: "Earphones / TWS",
     brand: "boAt",
     price: 699,
     original_price: 1299,
     warranty_info: "1 साल की ब्रांड वारंटी",
+    warranty_info_en: "1 Year Brand Warranty",
     in_stock: true,
     image_url: "https://images.unsplash.com/photo-1572536147248-ac59a8abfa4b?w=600&auto=format&fit=crop&q=80",
-    description: "दमदार डीप बास, 30 घंटे की लंबी बैटरी और फास्ट चार्जिंग सपोर्ट। कॉलिंग के लिए साफ माइक।"
+    description: "दमदार डीप बास, 30 घंटे की लंबी बैटरी और फास्ट चार्जिंग सपोर्ट। कॉलिंग के लिए साफ माइक।",
+    description_en: "Punchy deep bass, 30 hours battery backup and fast charging support. Crisp calling microphone."
   },
   {
     id: "acc-5",
@@ -287,13 +299,16 @@ export const INITIAL_ACCESSORIES = [
     title_hi: "Noise TWS टच वायरलेस ईयरबड्स",
     category: "earphones",
     category_hi: "इयरफोन / ब्लूटूथ",
+    category_en: "Earphones / TWS",
     brand: "Noise",
     price: 899,
     original_price: 1999,
     warranty_info: "1 साल की ब्रांड वारंटी",
+    warranty_info_en: "1 Year Brand Warranty",
     in_stock: true,
     image_url: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=600&auto=format&fit=crop&q=80",
-    description: "प्रीमियम साउंड, टच कंट्रोल, 40 घंटे का बैकअप और क्रिस्टल क्लियर कॉलिंग।"
+    description: "प्रीमियम साउंड, टच कंट्रोल, 40 घंटे का बैकअप और क्रिस्टल क्लियर कॉलिंग।",
+    description_en: "Premium acoustic sound, touch controls, 40 hours playtime and crystal clear calls."
   },
   {
     id: "acc-6",
@@ -301,13 +316,16 @@ export const INITIAL_ACCESSORIES = [
     title_hi: "हैवी बास 3.5mm वायर्ड इयरफोन",
     category: "earphones",
     category_hi: "इयरफोन / ब्लूटूथ",
+    category_en: "Earphones / TWS",
     brand: "SoundBeat",
     price: 149,
     original_price: 299,
     warranty_info: "चेकिंग गारंटी",
+    warranty_info_en: "Testing Guarantee",
     in_stock: true,
     image_url: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=600&auto=format&fit=crop&q=80",
-    description: "टैंगल-फ्री मजबूत तार, एचडी माइक और म्यूजिक सुनने के लिए शानदार डीप बास।"
+    description: "टैंगल-फ्री मजबूत तार, एचडी माइक और म्यूजिक सुनने के लिए शानदार डीप बास।",
+    description_en: "Tangle-free durable cable, HD microphone and powerful deep bass for everyday music."
   },
   {
     id: "acc-7",
@@ -315,13 +333,16 @@ export const INITIAL_ACCESSORIES = [
     title_hi: "कैमरा प्रोटेक्शन सिलिकॉन मैट कवर",
     category: "covers",
     category_hi: "कवर",
+    category_en: "Back Covers",
     brand: "ArmorShield",
     price: 149,
     original_price: 299,
     warranty_info: "परफेक्ट फिटिंग गारंटी",
+    warranty_info_en: "Perfect Fit Guarantee",
     in_stock: true,
     image_url: "https://images.unsplash.com/photo-1603313011101-320f26a4f6f6?w=600&auto=format&fit=crop&q=80",
-    description: "सॉफ्ट मैट फिनिश, कैमरा बंपर कटआउट और शॉक-प्रूफ ड्रॉप प्रोटेक्शन। सभी मॉडल्स उपलब्ध।"
+    description: "सॉफ्ट मैट फिनिश, कैमरा बंपर कटआउट और शॉक-प्रूफ ड्रॉप प्रोटेक्शन। सभी मॉडल्स उपलब्ध।",
+    description_en: "Soft matte finish, camera bumper cutout and shock-proof drop protection. Available for all models."
   },
   {
     id: "acc-8",
@@ -329,13 +350,16 @@ export const INITIAL_ACCESSORIES = [
     title_hi: "ट्रांसपेरेंट एयर-कुशन बैक कवर",
     category: "covers",
     category_hi: "कवर",
+    category_en: "Back Covers",
     brand: "PureView",
     price: 99,
     original_price: 199,
     warranty_info: "परफेक्ट फिटिंग गारंटी",
+    warranty_info_en: "Perfect Fit Guarantee",
     in_stock: true,
     image_url: "https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=600&auto=format&fit=crop&q=80",
-    description: "फोन का ओरिजिनल लुक दिखाने वाला मजबूत ट्रांसपेरेंट कवर, कोनों पर एक्स्ट्रा एयर प्रोटेक्शन।"
+    description: "फोन का ओरिजिनल लुक दिखाने वाला मजबूत ट्रांसपेरेंट कवर, कोनों पर एक्स्ट्रा एयर प्रोटेक्शन।",
+    description_en: "Durable transparent case showcasing original phone look with reinforced corner air cushion drop protection."
   },
   {
     id: "acc-9",
@@ -343,13 +367,16 @@ export const INITIAL_ACCESSORIES = [
     title_hi: "6A 65W ब्रेडेड फास्ट Type-C केबल",
     category: "cables",
     category_hi: "केबल",
+    category_en: "Data Cables",
     brand: "ToughLink",
     price: 129,
     original_price: 249,
     warranty_info: "3 महीने की रिप्लेसमेंट",
+    warranty_info_en: "3 Months Replacement",
     in_stock: true,
     image_url: "https://images.unsplash.com/photo-1618424181497-157f25b6ddd5?w=600&auto=format&fit=crop&q=80",
-    description: "ना टूटने वाला नायलॉन ब्रेडेड तार, 65W सुपरफास्ट चार्जिंग और तेज डेटा ट्रांसफर।"
+    description: "ना टूटने वाला नायलॉन ब्रेडेड तार, 65W सुपरफास्ट चार्जिंग और तेज डेटा ट्रांसफर।",
+    description_en: "Unbreakable nylon braided cable, 65W ultra-fast charging and high-speed data sync."
   },
   {
     id: "acc-10",
@@ -357,13 +384,16 @@ export const INITIAL_ACCESSORIES = [
     title_hi: "3-in-1 मल्टी चार्जिंग केबल (Type-C, Micro, iPhone)",
     category: "cables",
     category_hi: "केबल",
+    category_en: "Data Cables",
     brand: "AllInOne Pro",
     price: 199,
     original_price: 399,
     warranty_info: "3 महीने की रिप्लेसमेंट",
+    warranty_info_en: "3 Months Replacement",
     in_stock: true,
     image_url: "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=600&auto=format&fit=crop&q=80",
-    description: "एक ही केबल से चार्ज करें Type-C, Micro-USB और iPhone डिवाइस। मजबूत और टिकाऊ।"
+    description: "एक ही केबल से चार्ज करें Type-C, Micro-USB और iPhone डिवाइस। मजबूत और टिकाऊ।",
+    description_en: "Charge Type-C, Micro-USB and iPhone devices simultaneously from a single heavy-duty cable."
   }
 ];
 

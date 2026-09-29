@@ -1,28 +1,21 @@
 import React, { useState } from 'react';
 import { 
   Calculator, 
-  CreditCard, 
-  MessageCircle, 
-  Calendar, 
-  Percent, 
-  ShieldCheck,
-  Building2,
-  IndianRupee,
-  CheckCircle2
+  MessageCircle
 } from 'lucide-react';
 import { SHOP_INFO } from '../../data/mockData';
 import { useLanguage } from '../../context/LanguageContext';
 
 const PARTNERS = [
-  { id: 'bajaj', name: 'Bajaj Finserv', badge: 'Zero Down Payment' },
-  { id: 'tvs', name: 'TVS Credit', badge: 'Aadhaar Approval' },
-  { id: 'samsung', name: 'Samsung Finance+', badge: 'Instant Paperless' }
+  { id: 'bajaj', name: 'Bajaj Finserv' },
+  { id: 'tvs', name: 'TVS Credit' },
+  { id: 'samsung', name: 'Samsung Finance+' }
 ];
 
 const TENURES = [6, 12, 24];
 
 export default function LiveEmiCalculatorWidget() {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [devicePrice, setDevicePrice] = useState(45000);
   const [downPayment, setDownPayment] = useState(5000);
   const [selectedTenure, setSelectedTenure] = useState(12);
@@ -50,11 +43,11 @@ export default function LiveEmiCalculatorWidget() {
           <div className="flex items-center gap-2 mb-1">
             <Calculator className="w-5 h-5 text-primary-800" />
             <h3 className="text-xl font-bold text-slate-900 font-['Poppins']">
-              {language === 'hi' ? '0% आसान ईएमआई कैलकुलेटर' : 'Live 0% EMI Calculator'}
+              {t('live_emi.title')}
             </h3>
           </div>
           <p className="text-xs sm:text-sm text-slate-500">
-            Calculate your monthly payment with zero interest from shop-authorized finance partners
+            {t('live_emi.subtitle')}
           </p>
         </div>
 
@@ -63,8 +56,9 @@ export default function LiveEmiCalculatorWidget() {
           {PARTNERS.map((p) => (
             <button
               key={p.id}
+              type="button"
               onClick={() => setSelectedPartner(p.id)}
-              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition border ${
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition border cursor-pointer ${
                 selectedPartner === p.id
                   ? 'bg-slate-900 text-white border-slate-900 shadow-xs'
                   : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
@@ -86,7 +80,7 @@ export default function LiveEmiCalculatorWidget() {
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="text-xs font-bold uppercase tracking-wider text-slate-600">
-                Smartphone Value
+                {t('live_emi.smartphone_value')}
               </label>
               <span className="font-mono font-bold text-base text-slate-900">
                 ₹{devicePrice.toLocaleString()}
@@ -118,7 +112,7 @@ export default function LiveEmiCalculatorWidget() {
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="text-xs font-bold uppercase tracking-wider text-slate-600">
-                Down Payment (₹0 Scheme Available)
+                {t('live_emi.down_payment')}
               </label>
               <span className="font-mono font-bold text-base text-slate-900">
                 ₹{downPayment.toLocaleString()}
@@ -134,28 +128,29 @@ export default function LiveEmiCalculatorWidget() {
               className="slider-retail w-full cursor-pointer"
             />
             <div className="flex justify-between text-[11px] text-slate-400 mt-1">
-              <span>₹0 (Zero Down Payment)</span>
-              <span>₹{Math.round(devicePrice * 0.7).toLocaleString()} (Max)</span>
+              <span>{t('live_emi.zero_down')}</span>
+              <span>₹{Math.round(devicePrice * 0.7).toLocaleString()} ({t('live_emi.max')})</span>
             </div>
           </div>
 
           {/* Tenure Buttons */}
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">
-              Repayment Tenure (Months)
+              {t('live_emi.tenure_label')}
             </label>
             <div className="grid grid-cols-3 gap-2">
               {TENURES.map((tenure) => (
                 <button
                   key={tenure}
+                  type="button"
                   onClick={() => setSelectedTenure(tenure)}
-                  className={`py-2.5 px-3 rounded-lg text-xs font-bold transition border ${
+                  className={`py-2.5 px-3 rounded-lg text-xs font-bold transition border cursor-pointer ${
                     selectedTenure === tenure
                       ? 'bg-primary-800 text-white border-primary-800 shadow-xs'
                       : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
                   }`}
                 >
-                  {tenure} Months
+                  {tenure} {t('live_emi.months_suffix')}
                 </button>
               ))}
             </div>
@@ -167,51 +162,52 @@ export default function LiveEmiCalculatorWidget() {
         <div className="lg:col-span-5 bg-slate-50 border border-slate-200 rounded-xl p-6 flex flex-col justify-between space-y-5">
           <div>
             <div className="flex items-center justify-between text-xs text-slate-500 mb-1">
-              <span>Selected Finance</span>
+              <span>{t('live_emi.selected_finance')}</span>
               <span className="font-semibold text-slate-800">
                 {PARTNERS.find(p => p.id === selectedPartner)?.name}
               </span>
             </div>
 
             <span className="text-xs text-slate-500 uppercase tracking-wider font-medium block">
-              Estimated Monthly Installment
+              {t('live_emi.est_monthly')}
             </span>
 
             <div className="mt-1 flex items-baseline gap-1">
               <span className="text-3xl sm:text-4xl font-black text-slate-950 font-['Poppins']">
                 ₹{monthlyPayout.toLocaleString()}
               </span>
-              <span className="text-sm font-medium text-slate-500">/ month</span>
+              <span className="text-sm font-medium text-slate-500">{t('buying.per_month')}</span>
             </div>
 
             {/* Breakdown List */}
             <div className="mt-4 pt-3 border-t border-slate-200 space-y-2 text-xs text-slate-600">
               <div className="flex justify-between">
-                <span>Loan Principal Amount:</span>
+                <span>{t('live_emi.loan_principal')}</span>
                 <span className="font-mono font-bold text-slate-900">₹{principal.toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
-                <span>Interest Rate:</span>
-                <span className="font-bold text-emerald-700">0% No Cost EMI</span>
+                <span>{t('live_emi.interest_rate')}</span>
+                <span className="font-bold text-emerald-700">{t('live_emi.no_cost_emi')}</span>
               </div>
               <div className="flex justify-between">
-                <span>Tenure Duration:</span>
-                <span className="font-bold text-slate-900">{selectedTenure} Months</span>
+                <span>{t('live_emi.tenure_duration')}</span>
+                <span className="font-bold text-slate-900">{selectedTenure} {t('live_emi.months_suffix')}</span>
               </div>
             </div>
           </div>
 
           {/* Action Button */}
           <button
+            type="button"
             onClick={handleApplyWhatsApp}
-            className="btn-whatsapp w-full py-3 text-sm flex items-center justify-center gap-2"
+            className="btn-whatsapp w-full py-3 text-sm flex items-center justify-center gap-2 cursor-pointer"
           >
             <MessageCircle className="w-4 h-4" />
-            <span>Apply via WhatsApp</span>
+            <span>{t('live_emi.apply_whatsapp')}</span>
           </button>
 
           <p className="text-[11px] text-slate-400 text-center">
-            *Subject to instant counter approval with Aadhaar and PAN at Amit Mobile Shop, Khorare.
+            {t('live_emi.disclaimer')}
           </p>
         </div>
 

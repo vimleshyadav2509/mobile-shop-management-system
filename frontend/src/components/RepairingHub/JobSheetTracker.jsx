@@ -13,11 +13,22 @@ export default function JobSheetTracker() {
   const [error, setError] = useState(null);
 
   const TRACKING_STAGES = [
-    { id: 'Received', label: t('stage_received'), desc: t('stage_received_desc'), icon: FileText },
-    { id: 'In Repair', label: t('stage_in_repair'), desc: t('stage_in_repair_desc'), icon: Wrench },
-    { id: 'Ready for Pickup', label: t('stage_ready'), desc: t('stage_ready_desc'), icon: PackageCheck },
-    { id: 'Delivered', label: t('stage_delivered'), desc: t('stage_delivered_desc'), icon: CheckCircle2 },
+    { id: 'Received', label: t('repairs.stage_received'), desc: t('repairs.stage_received_desc'), icon: FileText },
+    { id: 'In Repair', label: t('repairs.stage_in_repair'), desc: t('repairs.stage_in_repair_desc'), icon: Wrench },
+    { id: 'Ready for Pickup', label: t('repairs.stage_ready'), desc: t('repairs.stage_ready_desc'), icon: PackageCheck },
+    { id: 'Delivered', label: t('repairs.stage_delivered'), desc: t('repairs.stage_delivered_desc'), icon: CheckCircle2 },
   ];
+
+  const getStatusLabel = (status) => {
+    if (!status) return '';
+    if (language !== 'hi') return status;
+    const s = status.toLowerCase();
+    if (s.includes('ready') || s.includes('pickup')) return 'ले जाने के लिए तैयार';
+    if (s.includes('repair')) return 'रिपेयरिंग जारी';
+    if (s.includes('deliver') || s.includes('complete')) return 'ग्राहक को सौंपा गया';
+    if (s.includes('receive')) return 'दुकान पर जमा';
+    return status;
+  };
 
   const handleTrack = async (idToTrack = null) => {
     const targetId = (idToTrack || jobId).trim();
@@ -40,7 +51,7 @@ export default function JobSheetTracker() {
     } catch (err) {
       setJobData(null);
       setHistory([]);
-      setError(err.message || 'Job Sheet ID not found.');
+      setError(err.message || (language === 'hi' ? 'जॉब शीट नहीं मिली। कृपया सही नंबर चेक करें।' : 'Job Sheet ID not found.'));
     } finally {
       setLoading(false);
     }
@@ -75,13 +86,13 @@ export default function JobSheetTracker() {
         <div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-whatsapp-50 text-whatsapp-700 text-xs font-bold mb-2">
             <Clock className="w-3.5 h-3.5" />
-            <span>लाइव रसीद ट्रैकिंग (Receipt Tracking)</span>
+            <span>{language === 'hi' ? 'लाइव रसीद ट्रैकिंग' : 'Live Receipt Tracking'}</span>
           </div>
           <h3 className="text-xl sm:text-2xl font-black text-slate-900 font-['Poppins']">
-            {t('tracker_heading')}
+            {t('repairs.tracker_heading')}
           </h3>
           <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium">
-            {t('tracker_subheading')}
+            {t('repairs.tracker_subheading')}
           </p>
         </div>
       </div>
@@ -95,22 +106,23 @@ export default function JobSheetTracker() {
               type="text"
               value={jobId}
               onChange={(e) => setJobId(e.target.value.toUpperCase())}
-              placeholder={t('tracker_input_placeholder')}
+              placeholder={t('repairs.tracker_input_placeholder')}
               className="w-full pl-11 pr-4 py-3.5 rounded-2xl retail-input text-sm font-mono uppercase font-black"
             />
           </div>
           <button
+            type="button"
             onClick={() => handleTrack()}
             disabled={loading}
-            className="px-7 py-3.5 rounded-2xl bg-primary-700 hover:bg-primary-800 text-white font-black text-sm shadow-md transition flex items-center justify-center gap-2 disabled:opacity-50 whitespace-nowrap"
+            className="px-7 py-3.5 rounded-2xl bg-primary-700 hover:bg-primary-800 text-white font-black text-sm shadow-md transition flex items-center justify-center gap-2 disabled:opacity-50 whitespace-nowrap cursor-pointer"
           >
-            {loading ? (language === 'hi' ? 'चेक कर रहे हैं...' : 'Checking...') : t('tracker_btn')}
+            {loading ? t('repairs.checking') : t('repairs.tracker_btn')}
           </button>
         </div>
 
         {/* Quick Demo Chips */}
         <div className="flex flex-wrap items-center gap-2 text-xs">
-          <span className="text-slate-500 font-bold">{t('quick_test_chips')}</span>
+          <span className="text-slate-500 font-bold">{t('repairs.quick_test_chips')}</span>
           {['AMS-101', 'AMS-102', 'AMS-103', 'AMS-104'].map((demoId) => (
             <button
               key={demoId}
@@ -119,7 +131,7 @@ export default function JobSheetTracker() {
                 setJobId(demoId);
                 handleTrack(demoId);
               }}
-              className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-300 text-primary-800 text-xs font-mono font-bold transition"
+              className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-300 text-primary-800 text-xs font-mono font-bold transition cursor-pointer"
             >
               {demoId}
             </button>
@@ -143,10 +155,10 @@ export default function JobSheetTracker() {
             <div>
               <div className="flex items-center gap-2">
                 <span className="px-3 py-1 rounded-md bg-primary-700 text-white font-mono text-xs font-black">
-                  रसीद: {jobData.job_sheet_id}
+                  {t('repairs.receipt_label')} {jobData.job_sheet_id}
                 </span>
                 <span className="text-xs text-slate-500 font-medium">
-                  दिनांक: {jobData.created_at || 'आज'}
+                  {t('repairs.date_label')} {jobData.created_at || t('repairs.today')}
                 </span>
               </div>
               <h4 className="text-lg font-black text-slate-900 mt-1.5 flex items-center gap-2 font-['Poppins']">
@@ -156,7 +168,7 @@ export default function JobSheetTracker() {
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-500 font-bold">वर्तमान स्थिति:</span>
+              <span className="text-xs text-slate-500 font-bold">{t('repairs.current_status')}</span>
               <span className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider ${
                 jobData.status === 'Ready for Pickup'
                   ? 'bg-whatsapp-50 text-whatsapp-700 border-2 border-whatsapp-300'
@@ -164,7 +176,7 @@ export default function JobSheetTracker() {
                   ? 'bg-gold-50 text-gold-700 border-2 border-gold-300'
                   : 'bg-primary-50 text-primary-800 border-2 border-primary-300'
               }`}>
-                {jobData.status}
+                {getStatusLabel(jobData.status)}
               </span>
             </div>
           </div>
@@ -220,21 +232,21 @@ export default function JobSheetTracker() {
           <div className="p-5 rounded-2xl bg-white border border-slate-200 space-y-4 text-xs">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 font-medium">
               <div>
-                <span className="text-slate-500 block font-bold">{t('cust_name_label')}</span>
+                <span className="text-slate-500 block font-bold">{t('repairs.cust_name_label')}</span>
                 <span className="font-bold text-slate-900 text-sm">{jobData.customer_name}</span>
               </div>
               <div>
-                <span className="text-slate-500 block font-bold">{t('issue_label')}</span>
+                <span className="text-slate-500 block font-bold">{t('repairs.issue_label')}</span>
                 <span className="font-bold text-slate-900 text-sm">{jobData.issue_type}</span>
               </div>
               <div>
-                <span className="text-slate-500 block font-bold">{t('est_bill_label')}</span>
+                <span className="text-slate-500 block font-bold">{t('repairs.est_bill_label')}</span>
                 <span className="font-black text-primary-700 font-mono text-base">
                   ₹{jobData.estimated_cost?.toLocaleString()}
                 </span>
               </div>
               <div>
-                <span className="text-slate-500 block font-bold">{t('handled_by_label')}</span>
+                <span className="text-slate-500 block font-bold">{t('repairs.handled_by_label')}</span>
                 <span className="font-bold text-slate-900">
                   {jobData.technician_name || 'Amit Mobile Shop Expert'}
                 </span>
@@ -245,7 +257,7 @@ export default function JobSheetTracker() {
             {jobData.technician_notes && (
               <div className="pt-3 border-t border-slate-200">
                 <span className="text-slate-600 font-bold block mb-1">
-                  {t('tech_note_label')}
+                  {t('repairs.tech_note_label')}
                 </span>
                 <p className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 leading-relaxed font-semibold">
                   {jobData.technician_notes}
@@ -260,7 +272,7 @@ export default function JobSheetTracker() {
               <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
                 <History className="w-4 h-4 text-primary-600" />
                 <h5 className="text-xs font-black uppercase tracking-wider text-slate-700">
-                  {language === 'hi' ? 'स्थिति अपडेट इतिहास (Update History)' : 'Status Updates & Timeline'}
+                  {t('repairs.history_heading')}
                 </h5>
               </div>
               <div className="space-y-2.5">
@@ -270,15 +282,15 @@ export default function JobSheetTracker() {
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center justify-between gap-1">
                         <span className="font-bold text-slate-900">
-                          {item.new_status}
+                          {getStatusLabel(item.new_status)}
                           {item.old_status && item.old_status !== item.new_status && (
                             <span className="text-slate-400 font-normal ml-1">
-                              (from {item.old_status})
+                              ({language === 'hi' ? 'पहले' : 'from'} {getStatusLabel(item.old_status)})
                             </span>
                           )}
                         </span>
                         <span className="text-[10px] text-slate-400 font-mono">
-                          {item.created_at ? new Date(item.created_at).toLocaleString('en-IN') : ''}
+                          {item.created_at ? new Date(item.created_at).toLocaleString(language === 'hi' ? 'hi-IN' : 'en-IN') : ''}
                         </span>
                       </div>
                       {item.note && (
@@ -295,11 +307,12 @@ export default function JobSheetTracker() {
 
           {/* WhatsApp Status Chat Button */}
           <button
+            type="button"
             onClick={handleWhatsAppStatusInquiry}
-            className="w-full py-4 rounded-2xl bg-whatsapp-600 hover:bg-whatsapp-700 text-white font-black text-xs sm:text-sm shadow-md transition flex items-center justify-center gap-2"
+            className="w-full py-4 rounded-2xl bg-whatsapp-600 hover:bg-whatsapp-700 text-white font-black text-xs sm:text-sm shadow-md transition flex items-center justify-center gap-2 cursor-pointer"
           >
             <MessageCircle className="w-4 h-4" />
-            <span>{t('track_wa_inquiry')}</span>
+            <span>{t('repairs.track_wa_inquiry')}</span>
           </button>
 
         </div>

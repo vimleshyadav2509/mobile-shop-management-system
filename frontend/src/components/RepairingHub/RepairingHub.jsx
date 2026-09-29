@@ -17,13 +17,13 @@ export default function RepairingHub() {
         <div className="max-w-3xl mb-6">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-xs text-xs font-bold uppercase tracking-wider text-amber-100 mb-2 border border-white/20">
             <Wrench className="w-3.5 h-3.5 text-amber-200" />
-            <span>सरल व पारदर्शी 3-स्टेप रिपेयरिंग</span>
+            <span>{t('repairs.banner_badge')}</span>
           </div>
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black font-hindi tracking-tight">
-            मोबाइल स्क्रीन, फोल्डर या बैटरी 1 घंटे में बदलवाएं
+            {t('repairs.banner_title')}
           </h2>
           <p className="mt-2 text-xs sm:text-sm text-amber-100 leading-relaxed">
-            खोड़ारे चौराहे की विश्वसनीय शॉप — कोई छुपा हुआ चार्ज नहीं, टेस्टिंग के बाद असली बिल व दुकान की पक्की वारंटी।
+            {t('repairs.banner_desc')}
           </p>
         </div>
 
@@ -39,9 +39,9 @@ export default function RepairingHub() {
               <MapPin className="w-5 h-5 text-amber-200" />
             </div>
             <div>
-              <h3 className="text-base font-bold font-hindi text-white">दुकान पर लाएं</h3>
+              <h3 className="text-base font-bold font-hindi text-white">{t('repairs.step1_title')}</h3>
               <p className="text-xs text-amber-100 mt-1">
-                खोड़ारे चौराहा, कुक नगर ग्रिंट रोड पर अपना फोन लाएं या फोन पर समस्या बताएं।
+                {t('repairs.step1_desc')}
               </p>
             </div>
           </div>
@@ -55,9 +55,9 @@ export default function RepairingHub() {
               <Search className="w-5 h-5 text-amber-200" />
             </div>
             <div>
-              <h3 className="text-base font-bold font-hindi text-white">तुरंत मुफ्त जांच व रेट</h3>
+              <h3 className="text-base font-bold font-hindi text-white">{t('repairs.step2_title')}</h3>
               <p className="text-xs text-amber-100 mt-1">
-                माइक्रोस्कोप व टेस्टिंग से सही फॉल्ट पहचानें और काम शुरू होने से पहले फिक्स रेट जानें।
+                {t('repairs.step2_desc')}
               </p>
             </div>
           </div>
@@ -71,9 +71,9 @@ export default function RepairingHub() {
               <ShieldCheck className="w-5 h-5 text-emerald-300" />
             </div>
             <div>
-              <h3 className="text-base font-bold font-hindi text-white">1 घंटे में पक्की वारंटी</h3>
+              <h3 className="text-base font-bold font-hindi text-white">{t('repairs.step3_title')}</h3>
               <p className="text-xs text-amber-100 mt-1">
-                ओरिजिनल फोल्डर व बैटरी फिटिंग, काउंटर पर पूरी टेस्टिंग और शॉप गारंटी रसीद।
+                {t('repairs.step3_desc')}
               </p>
             </div>
           </div>
@@ -84,26 +84,28 @@ export default function RepairingHub() {
         <div className="flex flex-wrap items-center gap-3 pt-2">
           <a
             href={`tel:${SHOP_INFO.phone1}`}
-            className="px-5 py-3 rounded-2xl bg-white text-amber-800 hover:bg-amber-50 font-bold text-xs sm:text-sm transition-all duration-200 shadow-md flex items-center gap-2"
+            className="px-5 py-3 rounded-2xl bg-white text-amber-800 hover:bg-amber-50 font-bold text-xs sm:text-sm transition-all duration-200 shadow-md flex items-center gap-2 cursor-pointer"
           >
             <PhoneCall className="w-4 h-4 text-amber-600" />
-            <span>सीधे कॉल करें (+91 {SHOP_INFO.phone1})</span>
+            <span>{t('repairs.call_directly')} (+91 {SHOP_INFO.phone1})</span>
           </a>
 
           <a
             href={`https://wa.me/${SHOP_INFO.whatsapp}?text=${encodeURIComponent(
-              'नमस्ते Amit Mobile Shop, मुझे अपना मोबाइल रिपेयर करवाना है (स्क्रीन / बैटरी / चार्जिंग)। कृपया रेट व समय बताएं।'
+              language === 'hi'
+                ? 'नमस्ते Amit Mobile Shop, मुझे अपना मोबाइल रिपेयर करवाना है (स्क्रीन / बैटरी / चार्जिंग)। कृपया रेट व समय बताएं।'
+                : 'Hello Amit Mobile Shop, I want to book a mobile repair (screen / battery / charging). Please let me know estimated cost and turnaround.'
             )}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-5 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm transition-all duration-200 shadow-md flex items-center gap-2"
+            className="px-5 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm transition-all duration-200 shadow-md flex items-center gap-2 cursor-pointer"
           >
             <MessageCircle className="w-4 h-4" />
-            <span>WhatsApp पर रिपेयर बुक करें</span>
+            <span>{t('repairs.book_repair_whatsapp')}</span>
           </a>
 
           <span className="text-xs text-amber-100 font-medium ml-auto hidden sm:inline">
-            ⚡ स्क्रीन और बैटरी तुरंत बदलें
+            {t('repairs.express_repair_tag')}
           </span>
         </div>
       </div>
@@ -114,37 +116,39 @@ export default function RepairingHub() {
           <div className="flex items-center gap-2 mb-1">
             <Wrench className="w-5 h-5 text-amber-700" />
             <h2 className="text-xl sm:text-2xl font-black text-slate-900 font-hindi">
-              रिपेयरिंग रेट कैलकुलेटर एवं लाइव स्टेटस ट्रैकिंग
+              {t('repairs.hub_title')}
             </h2>
           </div>
           <p className="text-xs sm:text-sm text-slate-500 font-normal">
-            घर बैठे अपनी स्क्रीन, बैटरी या चार्जिंग का अनुमानित खर्च चेक करें या अपनी जॉब शीट (रसीद) ट्रैक करें।
+            {t('repairs.hub_desc')}
           </p>
         </div>
 
         {/* Sub-Tabs: Estimator vs Job Sheet Tracker */}
         <div className="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200 w-full md:w-auto">
           <button
+            type="button"
             onClick={() => setSubTab('estimator')}
-            className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg font-bold text-xs sm:text-sm transition-all ${
+            className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg font-bold text-xs sm:text-sm transition-all cursor-pointer ${
               subTab === 'estimator'
                 ? 'bg-amber-600 text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <span>{t('subtab_estimator')} (खर्च जानें)</span>
+            <span>{t('repairs.subtab_estimator_pill')}</span>
           </button>
 
           <button
+            type="button"
             onClick={() => setSubTab('tracker')}
-            className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg font-bold text-xs sm:text-sm transition-all ${
+            className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg font-bold text-xs sm:text-sm transition-all cursor-pointer ${
               subTab === 'tracker'
                 ? 'bg-amber-600 text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <Clock className="w-3.5 h-3.5" />
-            <span>{t('subtab_tracker')} (स्थिति जांचें)</span>
+            <span>{t('repairs.subtab_tracker_pill')}</span>
           </button>
         </div>
       </div>
@@ -157,9 +161,9 @@ export default function RepairingHub() {
           </div>
           <div>
             <h4 className="text-xs sm:text-sm font-bold text-slate-900">
-              {t('express_guarantee_1')}
+              {t('repairs.guarantee_1')}
             </h4>
-            <p className="text-[11px] text-slate-500 font-normal">Express 1-hour screen & battery fitting</p>
+            <p className="text-[11px] text-slate-500 font-normal">{t('repairs.guarantee_1_sub')}</p>
           </div>
         </div>
 
@@ -169,9 +173,9 @@ export default function RepairingHub() {
           </div>
           <div>
             <h4 className="text-xs sm:text-sm font-bold text-slate-900">
-              {t('express_guarantee_2')}
+              {t('repairs.guarantee_2')}
             </h4>
-            <p className="text-[11px] text-slate-500 font-normal">Microscope diagnosis for charging & IC issues</p>
+            <p className="text-[11px] text-slate-500 font-normal">{t('repairs.guarantee_2_sub')}</p>
           </div>
         </div>
 
@@ -181,9 +185,9 @@ export default function RepairingHub() {
           </div>
           <div>
             <h4 className="text-xs sm:text-sm font-bold text-slate-900">
-              {t('express_guarantee_3')}
+              {t('repairs.guarantee_3')}
             </h4>
-            <p className="text-[11px] text-slate-500 font-normal">Tested on counter with transparent printed receipt</p>
+            <p className="text-[11px] text-slate-500 font-normal">{t('repairs.guarantee_3_sub')}</p>
           </div>
         </div>
       </div>
