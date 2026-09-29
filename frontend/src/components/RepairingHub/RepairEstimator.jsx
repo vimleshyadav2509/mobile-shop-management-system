@@ -2,23 +2,9 @@ import React, { useState } from 'react';
 import { Wrench, Clock, ShieldCheck, CheckCircle, ChevronDown, ChevronUp, MessageCircle, AlertCircle } from 'lucide-react';
 import { calculateEstimate } from '../../services/api';
 import { useLanguage } from '../../context/LanguageContext';
-import { SHOP_INFO } from '../../data/mockData';
+import { SHOP_INFO, SUPPORTED_MOBILE_BRANDS } from '../../data/mockData';
 
-const COMMON_BRANDS = [
-  'Samsung',
-  'Apple',
-  'Vivo',
-  'Realme',
-  'Xiaomi / Redmi',
-  'OnePlus',
-  'OPPO',
-  'iQOO',
-  'Infinix',
-  'Motorola',
-  'TECNO',
-  'Nothing',
-  'AI+'
-];
+const COMMON_BRANDS = SUPPORTED_MOBILE_BRANDS;
 
 export default function RepairEstimator() {
   const { t, language } = useLanguage();

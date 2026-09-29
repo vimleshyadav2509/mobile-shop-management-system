@@ -5,23 +5,9 @@ import {
   Check, 
   IndianRupee
 } from 'lucide-react';
+import { SUPPORTED_MOBILE_BRANDS } from '../../../data/mockData';
 
-const BRANDS = [
-  'Samsung',
-  'Apple',
-  'OnePlus',
-  'Vivo',
-  'Realme',
-  'Xiaomi',
-  'OPPO',
-  'iQOO',
-  'Infinix',
-  'Motorola',
-  'TECNO',
-  'Intel',
-  'Nothing',
-  'AI+'
-];
+const BRANDS = SUPPORTED_MOBILE_BRANDS;
 const STORAGE_OPTIONS = ['6GB / 128GB', '8GB / 128GB', '8GB / 256GB', '12GB / 256GB', '16GB / 512GB'];
 
 export default function QuickStockModal({ isOpen, onClose, onAddProduct }) {

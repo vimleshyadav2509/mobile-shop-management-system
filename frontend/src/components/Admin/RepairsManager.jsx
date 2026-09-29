@@ -20,6 +20,7 @@ import {
   HelpCircle
 } from 'lucide-react';
 import { fetchRepairHistory } from '../../services/api';
+import { SUPPORTED_MOBILE_BRANDS } from '../../data/mockData';
 
 const STATUS_OPTIONS = [
   'Received',
@@ -705,14 +706,9 @@ export default function RepairsManager({
                     onChange={(e) => setNewBrand(e.target.value)}
                     className="admin-input"
                   >
-                    <option value="Samsung">Samsung</option>
-                    <option value="Vivo">Vivo</option>
-                    <option value="Apple">Apple</option>
-                    <option value="Realme">Realme</option>
-                    <option value="Xiaomi">Xiaomi / Redmi</option>
-                    <option value="OnePlus">OnePlus</option>
-                    <option value="Oppo">Oppo</option>
-                    <option value="Motorola">Motorola</option>
+                    {SUPPORTED_MOBILE_BRANDS.map((b) => (
+                      <option key={b} value={b}>{b}</option>
+                    ))}
                     <option value="Other">Other</option>
                   </select>
                 </div>

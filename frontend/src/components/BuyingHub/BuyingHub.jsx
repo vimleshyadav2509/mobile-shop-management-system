@@ -6,9 +6,9 @@ import LiveEmiCalculatorWidget from './LiveEmiCalculatorWidget';
 import EMIBadges from '../EMIBadges';
 import { fetchProducts } from '../../services/api';
 import { useLanguage } from '../../context/LanguageContext';
-import { INITIAL_PRODUCTS } from '../../data/mockData';
+import { INITIAL_PRODUCTS, SUPPORTED_MOBILE_BRANDS } from '../../data/mockData';
 
-const BRANDS = ['All Brands', 'Samsung', 'Apple', 'OnePlus', 'Vivo', 'Realme', 'Xiaomi'];
+const BRANDS = ['All Brands', ...SUPPORTED_MOBILE_BRANDS];
 
 export default function BuyingHub() {
   const { t, language } = useLanguage();
