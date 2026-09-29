@@ -5,7 +5,19 @@ import { useLanguage } from '../../context/LanguageContext';
 import { SHOP_INFO } from '../../data/mockData';
 
 const COMMON_BRANDS = [
-  'Samsung', 'Apple', 'Vivo', 'Realme', 'Xiaomi / Redmi', 'OnePlus', 'Oppo'
+  'Samsung',
+  'Apple',
+  'Vivo',
+  'Realme',
+  'Xiaomi / Redmi',
+  'OnePlus',
+  'OPPO',
+  'iQOO',
+  'Infinix',
+  'Motorola',
+  'TECNO',
+  'Nothing',
+  'AI+'
 ];
 
 export default function RepairEstimator() {
