@@ -19,16 +19,21 @@ from app.security import hash_password, verify_password
 logger = logging.getLogger(__name__)
 
 DB_FILE = DB_PATH
-IS_POSTGRES = bool(DATABASE_URL)
 _pg_engine = None
 
-if IS_POSTGRES:
+db_url = DATABASE_URL
+if db_url:
+    if db_url.startswith("postgres://"):
+        db_url = db_url.replace("postgres://", "postgresql+psycopg2://", 1)
+    elif db_url.startswith("postgresql://") and not db_url.startswith("postgresql+"):
+        db_url = db_url.replace("postgresql://", "postgresql+psycopg2://", 1)
+
     try:
         from sqlalchemy import create_engine
         import psycopg2
         from psycopg2.extras import RealDictCursor
         _pg_engine = create_engine(
-            DATABASE_URL,
+            db_url,
             pool_pre_ping=True,
             pool_size=10,
             max_overflow=20,
@@ -39,6 +44,8 @@ if IS_POSTGRES:
         logger.error(f"[DATABASE] Failed to initialize PostgreSQL engine: {e}")
         if IS_PRODUCTION:
             raise
+
+IS_POSTGRES = bool(_pg_engine is not None)
 
 
 class PostgresCursorWrapper:

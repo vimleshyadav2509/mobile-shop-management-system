@@ -32,8 +32,9 @@ IS_PRODUCTION = ENVIRONMENT == "production"
 # Database Configuration (Supabase PostgreSQL in production, SQLite fallback in development)
 DATABASE_URL = os.getenv("DATABASE_URL", "").strip()
 if DATABASE_URL.startswith("postgres://"):
-    # Normalize postgres:// to postgresql:// for SQLAlchemy/psycopg2
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg2://", 1)
+elif DATABASE_URL.startswith("postgresql://") and not DATABASE_URL.startswith("postgresql+"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://", 1)
 
 if IS_PRODUCTION and not DATABASE_URL:
     raise RuntimeError(

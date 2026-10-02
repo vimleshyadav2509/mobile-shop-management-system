@@ -12,41 +12,61 @@ import logging
 import argparse
 from typing import List, Dict, Any
 
+from dotenv import load_dotenv
+
 # Ensure backend directory in sys.path
 backend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if backend_dir not in sys.path:
     sys.path.insert(0, backend_dir)
 
-from app.config import (
-    CLOUDINARY_CLOUD_NAME,
-    CLOUDINARY_API_KEY,
-    CLOUDINARY_API_SECRET,
-    PRODUCT_UPLOAD_DIR
-)
-from app.database import get_connection, IS_POSTGRES
-from app.cloudinary_service import is_cloudinary_configured, is_valid_image_bytes
+# Explicitly load backend/.env if present
+env_file = os.path.join(backend_dir, ".env")
+if os.path.isfile(env_file):
+    load_dotenv(env_file, override=True)
+else:
+    load_dotenv(override=True)
+
+from app.config import PRODUCT_UPLOAD_DIR
+import app.config as app_cfg
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("image_migration")
 
 
-def migrate_images(dry_run: bool = False) -> bool:
+def migrate_images(
+    cloud_name: str = None,
+    api_key: str = None,
+    api_secret: str = None,
+    database_url: str = None,
+    dry_run: bool = False
+) -> bool:
     import cloudinary
     import cloudinary.uploader
 
-    if not is_cloudinary_configured():
+    c_name = cloud_name or os.getenv("CLOUDINARY_CLOUD_NAME") or app_cfg.CLOUDINARY_CLOUD_NAME
+    c_key = api_key or os.getenv("CLOUDINARY_API_KEY") or app_cfg.CLOUDINARY_API_KEY
+    c_secret = api_secret or os.getenv("CLOUDINARY_API_SECRET") or app_cfg.CLOUDINARY_API_SECRET
+
+    if not (c_name and c_key and c_secret and c_name != "CHANGE_ME"):
         logger.error(
             "Cloudinary is not configured! Please set CLOUDINARY_CLOUD_NAME, "
-            "CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET."
+            "CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET in backend/.env or pass as arguments."
         )
         return False
 
     cloudinary.config(
-        cloud_name=CLOUDINARY_CLOUD_NAME,
-        api_key=CLOUDINARY_API_KEY,
-        api_secret=CLOUDINARY_API_SECRET,
+        cloud_name=c_name,
+        api_key=c_key,
+        api_secret=c_secret,
         secure=True
     )
+
+    if database_url:
+        os.environ["DATABASE_URL"] = database_url
+        app_cfg.DATABASE_URL = database_url
+
+    from app.database import get_connection
+    from app.cloudinary_service import is_valid_image_bytes
 
     logger.info("Connecting to database...")
     conn = get_connection()
@@ -173,8 +193,18 @@ def migrate_images(dry_run: bool = False) -> bool:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Migrate local product images to Cloudinary")
+    parser.add_argument("--cloud-name", type=str, default=None, help="Cloudinary cloud name")
+    parser.add_argument("--api-key", type=str, default=None, help="Cloudinary API key")
+    parser.add_argument("--api-secret", type=str, default=None, help="Cloudinary API secret")
+    parser.add_argument("--database-url", type=str, default=None, help="Database connection URL")
     parser.add_argument("--dry-run", action="store_true", help="Simulate upload without changing database")
     args = parser.parse_args()
 
-    success = migrate_images(dry_run=args.dry_run)
+    success = migrate_images(
+        cloud_name=args.cloud_name,
+        api_key=args.api_key,
+        api_secret=args.api_secret,
+        database_url=args.database_url,
+        dry_run=args.dry_run
+    )
     sys.exit(0 if success else 1)
