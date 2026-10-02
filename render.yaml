@@ -1,0 +1,39 @@
+services:
+  - type: web
+    name: amit-mobile-shop-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    plan: free
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET_KEY
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: SHOP_PHONE_1
+        value: "6306657432"
+      - key: SHOP_PHONE_2
+        value: "9721996477"
+      - key: SHOP_LOCATION
+        value: "Kuk Nagar Grint Rd, Khorare, Uttar Pradesh 271312"
+      - key: SHOP_LATITUDE
+        value: "27.0161817"
+      - key: SHOP_LONGITUDE
+        value: "82.5375051"
+      - key: SHOP_MAPS_URL
+        value: "https://maps.app.goo.gl/Cumott8vek7HA85K9"

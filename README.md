@@ -65,9 +65,11 @@ The **Mobile Shop Management System** is an enterprise-grade, full-stack busines
 * **Configuration**: Python Dotenv
 * **Image Processing & Form Handling**: Python-Multipart
 
-### Database
-* **Engine**: SQLite 3 (Production schema compatible with PostgreSQL / Supabase)
-* **Storage**: Local persistent database (`ams_store.db`) with relational foreign keys and indices
+### Database & Image Storage
+* **Production Database**: PostgreSQL 15+ hosted on Supabase (connection pooling via SQLAlchemy, pre-ping enabled)
+* **Local Development Database**: SQLite 3 (`ams_store.db`) with automatic schema migration and fallback
+* **Production Image Storage**: Cloudinary Media CDN (`cloudinary` SDK) with automated optimization and orphan asset pruning
+* **Local Development Image Storage**: Local filesystem (`backend/static/uploads/products/`)
 
 ### Authentication & Security
 * **Password Hashing**: Bcrypt
@@ -312,40 +314,30 @@ Storefront runs on `http://localhost:5173` with Admin portal at `http://localhos
 
 ---
 
-## Production Deployment Architecture (Railway Unified Project)
+## Production Cloud Deployment Architecture
 
-The application is deployed to **Railway** as a unified project managing both services:
-* **Frontend Service**: React + Vite SPA with fully centralized Hindi & English (`i18n`) language system, first-visit language modal, and persistent preference. Built and served via `vite preview` with automatic SPA routing fallback.
-* **Backend Service**: FastAPI with Uvicorn ASGI server.
-* **Persistent Volume**: Railway Persistent Volume attached to Backend Service at `/var/data` containing:
-  - `/var/data/ams_store.db` (Persistent SQLite Database)
-  - `/var/data/uploads/` (Persistent Product Image Uploads)
+The application is deployed to a resilient cloud-persistent stack:
+* **Frontend**: Hosted on **Netlify** (Free tier) with global CDN distribution and SPA routing (`/* -> /index.html 200`).
+* **Backend**: Hosted on **Render** (Free tier Web Service) running FastAPI + Uvicorn ASGI server with automatic health checks (`/api/health`).
+* **Database**: Managed PostgreSQL hosted on **Supabase** (Free tier) with SQLAlchemy connection pooling.
+* **Image CDN**: Media assets stored on **Cloudinary** (Free tier) with automated transformations and instant edge delivery.
 
-### Railway Service Configuration
+For detailed setup instructions, database migration, environment variables, and rollback steps, see [DEPLOYMENT.md](file:///c:/Users/Vimlesh%20Yadav/Desktop/AMS-folder/DEPLOYMENT.md).
 
-#### 1. Backend Service
-* **Root Directory**: `backend`
-* **Build Command**: `pip install -r requirements.txt`
-* **Start Command**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-* **Persistent Volume**: Attached at `/var/data` (1 GB)
-
-#### 2. Frontend Service
-* **Root Directory**: `frontend`
-* **Build Command**: `npm run build`
-* **Start Command**: `npm start` (runs `vite preview` bound to `0.0.0.0` and `$PORT`)
-
-### Production Environment Variables
+### Cloud Environment Variables
 
 | Variable | Component | Required | Purpose |
 | :--- | :---: | :---: | :--- |
-| `ENVIRONMENT` | Backend | **Yes** | Set to `production` to activate production guards & HSTS |
-| `PORT` | Backend / Frontend | **Yes** | Server port assigned dynamically by Railway (`$PORT`) |
+| `ENVIRONMENT` | Backend | **Yes** | Set to `production` to activate production guards & block SQLite fallback |
+| `DATABASE_URL` | Backend | **Yes** | Supabase PostgreSQL connection URI |
+| `PORT` | Backend | **Yes** | Server port assigned dynamically by Render (`$PORT`) |
 | `JWT_SECRET_KEY` | Backend | **Yes** | Cryptographically random secret (≥ 32 chars) for signing JWTs |
-| `FRONTEND_URL` | Backend | **Yes** | Public Railway frontend domain (e.g. `https://<frontend>.up.railway.app`) |
-| `ALLOWED_ORIGINS` | Backend | **Yes** | Allowed CORS origins matching Railway frontend domain |
-| `DB_PATH` | Backend | **Yes** | SQLite DB path on persistent volume (`/var/data/ams_store.db`) |
-| `UPLOAD_DIR` | Backend | **Yes** | Upload storage path on persistent volume (`/var/data/uploads`) |
-| `VITE_API_URL` | Frontend | **Yes** | Public Railway backend URL (e.g. `https://<backend>.up.railway.app`) |
+| `ALLOWED_ORIGINS` | Backend | **Yes** | Allowed CORS origins (e.g. `https://your-site.netlify.app`) |
+| `FRONTEND_URL` | Backend | Optional | Netlify frontend URL |
+| `CLOUDINARY_CLOUD_NAME` | Backend | **Yes** | Cloudinary cloud name for product image storage |
+| `CLOUDINARY_API_KEY` | Backend | **Yes** | Cloudinary public API key |
+| `CLOUDINARY_API_SECRET` | Backend | **Yes** | Cloudinary secret API key for signed uploads |
+| `VITE_API_URL` | Frontend | **Yes** | Render backend public URL (e.g. `https://your-app.onrender.com`) |
 
 ---
 

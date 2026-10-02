@@ -14,7 +14,9 @@
 *.db
 *.sqlite
 *.sqlite3
+*.backup
 backend/ams_store.db
+backend/ams_store.db.backup
 
 # Python & Caches
 __pycache__/

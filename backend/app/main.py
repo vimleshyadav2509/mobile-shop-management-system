@@ -1,7 +1,10 @@
-from contextlib import asynccontextmanager
 import os
+import logging
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
+
+logger = logging.getLogger(__name__)
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes import products, repairs, estimator, auth, admin, emi, settings, customer_auth
 from app.config import (
@@ -14,7 +17,7 @@ from app.config import (
     UPLOAD_DIR,
     PRODUCT_UPLOAD_DIR
 )
-from app.database import init_db
+from app.database import init_db, get_connection
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -93,7 +96,19 @@ def read_root():
 
 @app.get("/api/health")
 def health_check():
-    return {"status": "healthy", "service": "Amit Mobile Shop Backend"}
+    db_status = "connected"
+    try:
+        conn = get_connection()
+        conn.close()
+    except Exception as e:
+        logger.error(f"[HEALTH] Database check failed: {e}")
+        db_status = "disconnected"
+    return {
+        "status": "ok",
+        "service": "Amit Mobile Shop Backend",
+        "database": db_status,
+        "version": "1.0.0"
+    }
 
 @app.get("/api/info")
 def get_shop_info():

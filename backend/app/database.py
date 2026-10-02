@@ -1,18 +1,171 @@
 import sqlite3
 import os
 import uuid
+import re
+import logging
 from typing import List, Optional, Dict, Any
 from datetime import datetime
-from app.config import SUPABASE_URL, SUPABASE_KEY, ADMIN_USERNAME, ADMIN_PASSWORD, DB_PATH
+from app.config import (
+    SUPABASE_URL,
+    SUPABASE_KEY,
+    ADMIN_USERNAME,
+    ADMIN_PASSWORD,
+    DB_PATH,
+    DATABASE_URL,
+    IS_PRODUCTION
+)
 from app.security import hash_password, verify_password
 
+logger = logging.getLogger(__name__)
+
 DB_FILE = DB_PATH
+IS_POSTGRES = bool(DATABASE_URL)
+_pg_engine = None
+
+if IS_POSTGRES:
+    try:
+        from sqlalchemy import create_engine
+        import psycopg2
+        from psycopg2.extras import RealDictCursor
+        _pg_engine = create_engine(
+            DATABASE_URL,
+            pool_pre_ping=True,
+            pool_size=10,
+            max_overflow=20,
+            pool_recycle=300
+        )
+        logger.info("[DATABASE] PostgreSQL engine initialized with connection pooling.")
+    except Exception as e:
+        logger.error(f"[DATABASE] Failed to initialize PostgreSQL engine: {e}")
+        if IS_PRODUCTION:
+            raise
+
+
+class PostgresCursorWrapper:
+    def __init__(self, cursor):
+        self._cursor = cursor
+
+    def execute(self, sql: str, params=None):
+        # Convert SQLite-style ? placeholders to PostgreSQL %s
+        pg_sql = re.sub(r'\?', '%s', sql)
+        if params is None:
+            return self._cursor.execute(pg_sql)
+        if not isinstance(params, (tuple, list)):
+            params = (params,)
+        return self._cursor.execute(pg_sql, params)
+
+    def fetchone(self) -> Optional[Dict[str, Any]]:
+        row = self._cursor.fetchone()
+        return dict(row) if row else None
+
+    def fetchall(self) -> List[Dict[str, Any]]:
+        rows = self._cursor.fetchall()
+        return [dict(r) for r in rows]
+
+    @property
+    def rowcount(self) -> int:
+        return self._cursor.rowcount
+
+
+class PostgresConnectionWrapper:
+    def __init__(self, raw_conn):
+        self._conn = raw_conn
+        self._closed = False
+
+    def cursor(self):
+        from psycopg2.extras import RealDictCursor
+        return PostgresCursorWrapper(self._conn.cursor(cursor_factory=RealDictCursor))
+
+    def commit(self):
+        self._conn.commit()
+
+    def rollback(self):
+        self._conn.rollback()
+
+    def close(self):
+        if not self._closed:
+            self._closed = True
+            self._conn.close()
+
+
+class SQLiteCursorWrapper:
+    def __init__(self, cursor):
+        self._cursor = cursor
+
+    def execute(self, sql: str, params=None):
+        if params is None:
+            return self._cursor.execute(sql)
+        if not isinstance(params, (tuple, list)):
+            params = (params,)
+        return self._cursor.execute(sql, params)
+
+    def fetchone(self) -> Optional[Dict[str, Any]]:
+        row = self._cursor.fetchone()
+        return dict(row) if row else None
+
+    def fetchall(self) -> List[Dict[str, Any]]:
+        rows = self._cursor.fetchall()
+        return [dict(r) for r in rows]
+
+    @property
+    def rowcount(self) -> int:
+        return self._cursor.rowcount
+
+
+class SQLiteConnectionWrapper:
+    def __init__(self, conn):
+        self._conn = conn
+        self._conn.row_factory = sqlite3.Row
+        self._closed = False
+
+    def cursor(self):
+        return SQLiteCursorWrapper(self._conn.cursor())
+
+    def commit(self):
+        self._conn.commit()
+
+    def rollback(self):
+        self._conn.rollback()
+
+    def close(self):
+        if not self._closed:
+            self._closed = True
+            self._conn.close()
 
 
 def get_connection():
-    conn = sqlite3.connect(DB_FILE)
-    conn.row_factory = sqlite3.Row
-    return conn
+    """
+    Acquire a database connection.
+    In Production or when DATABASE_URL is set: Uses Supabase PostgreSQL with SQLAlchemy pool.
+    In Development without DATABASE_URL: Uses local SQLite fallback.
+    """
+    if IS_POSTGRES and _pg_engine:
+        raw_conn = _pg_engine.raw_connection()
+        return PostgresConnectionWrapper(raw_conn)
+    elif IS_PRODUCTION:
+        raise RuntimeError(
+            "FATAL: DATABASE_URL is missing in production! "
+            "A valid Supabase PostgreSQL connection string must be configured in environment variables."
+        )
+    else:
+        conn = sqlite3.connect(DB_FILE)
+        return SQLiteConnectionWrapper(conn)
+
+
+def get_table_columns(cursor, table_name: str) -> List[str]:
+    """Retrieve existing column names for table in PostgreSQL or SQLite."""
+    if IS_POSTGRES:
+        cursor.execute(
+            "SELECT column_name FROM information_schema.columns WHERE table_name = ?",
+            (table_name.lower(),)
+        )
+        rows = cursor.fetchall()
+        return [r["column_name"] for r in rows]
+    else:
+        cursor.execute(f"PRAGMA table_info({table_name})")
+        rows = cursor.fetchall()
+        return [r["name"] for r in rows]
+
 
 def init_db():
     conn = get_connection()
@@ -44,8 +197,7 @@ def init_db():
     """)
 
     # Safe Schema Migrations for existing products table
-    cursor.execute("PRAGMA table_info(products)")
-    existing_product_cols = [row["name"] for row in cursor.fetchall()]
+    existing_product_cols = get_table_columns(cursor, "products")
     if "category" not in existing_product_cols:
         cursor.execute("ALTER TABLE products ADD COLUMN category TEXT DEFAULT 'Smartphones'")
     if "stock_count" not in existing_product_cols:
@@ -139,8 +291,7 @@ def init_db():
     """)
 
     # Safe Schema Migrations for existing admin_users table
-    cursor.execute("PRAGMA table_info(admin_users)")
-    existing_admin_cols = [row["name"] for row in cursor.fetchall()]
+    existing_admin_cols = get_table_columns(cursor, "admin_users")
     if "token_version" not in existing_admin_cols:
         cursor.execute("ALTER TABLE admin_users ADD COLUMN token_version INTEGER DEFAULT 1")
 

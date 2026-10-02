@@ -29,6 +29,23 @@ TWILIO_FROM_NUMBER = os.getenv("TWILIO_FROM_NUMBER", "").strip()
 ENVIRONMENT = os.getenv("ENVIRONMENT", "development").lower().strip()
 IS_PRODUCTION = ENVIRONMENT == "production"
 
+# Database Configuration (Supabase PostgreSQL in production, SQLite fallback in development)
+DATABASE_URL = os.getenv("DATABASE_URL", "").strip()
+if DATABASE_URL.startswith("postgres://"):
+    # Normalize postgres:// to postgresql:// for SQLAlchemy/psycopg2
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+if IS_PRODUCTION and not DATABASE_URL:
+    raise RuntimeError(
+        "FATAL: DATABASE_URL is missing in production! "
+        "A valid Supabase PostgreSQL connection string must be configured in environment variables."
+    )
+
+# Cloudinary Image Storage Configuration
+CLOUDINARY_CLOUD_NAME = os.getenv("CLOUDINARY_CLOUD_NAME", "").strip()
+CLOUDINARY_API_KEY = os.getenv("CLOUDINARY_API_KEY", "").strip()
+CLOUDINARY_API_SECRET = os.getenv("CLOUDINARY_API_SECRET", "").strip()
+
 # Customer & Admin Token Expiry
 CUSTOMER_TOKEN_EXPIRE_DAYS = int(os.getenv("CUSTOMER_TOKEN_EXPIRE_DAYS", "30")) # 30 days for customer sessions
 
