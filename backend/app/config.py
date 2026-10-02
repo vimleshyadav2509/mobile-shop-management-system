@@ -14,10 +14,23 @@ SUPABASE_KEY = os.getenv("SUPABASE_KEY", "").strip()
 SHOP_PHONE_1 = os.getenv("SHOP_PHONE_1", "6306657432")
 SHOP_PHONE_2 = os.getenv("SHOP_PHONE_2", "9721996477")
 SHOP_LOCATION = os.getenv("SHOP_LOCATION", "Kuk Nagar Grint Rd, Khorare, Uttar Pradesh 271312")
+SHOP_LATITUDE = float(os.getenv("SHOP_LATITUDE", "27.0161817"))
+SHOP_LONGITUDE = float(os.getenv("SHOP_LONGITUDE", "82.5375051"))
+SHOP_MAPS_URL = os.getenv("SHOP_MAPS_URL", "https://maps.app.goo.gl/Cumott8vek7HA85K9")
+
+# SMS / OTP Provider Configuration (Fast2SMS, Twilio, etc.)
+SMS_PROVIDER = os.getenv("SMS_PROVIDER", "").strip().lower() # 'fast2sms', 'twilio', or ''
+FAST2SMS_API_KEY = os.getenv("FAST2SMS_API_KEY", "").strip()
+TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID", "").strip()
+TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN", "").strip()
+TWILIO_FROM_NUMBER = os.getenv("TWILIO_FROM_NUMBER", "").strip()
 
 # Environment Mode: 'development' or 'production'
 ENVIRONMENT = os.getenv("ENVIRONMENT", "development").lower().strip()
 IS_PRODUCTION = ENVIRONMENT == "production"
+
+# Customer & Admin Token Expiry
+CUSTOMER_TOKEN_EXPIRE_DAYS = int(os.getenv("CUSTOMER_TOKEN_EXPIRE_DAYS", "30")) # 30 days for customer sessions
 
 # Admin Authentication & Security Config
 JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "ams_default_dev_secret_change_in_production_2025")

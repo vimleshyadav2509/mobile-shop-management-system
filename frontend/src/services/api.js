@@ -373,6 +373,188 @@ export async function changeAdminPassword(currentPassword, newPassword) {
   return await res.json();
 }
 
+// ==============================================================================
+// Customer Authentication & Mobile OTP Client Services
+// ==============================================================================
+
+export function getStoredCustomerToken() {
+  return localStorage.getItem('ams_customer_token');
+}
+
+export function setStoredCustomerToken(token) {
+  if (token) {
+    localStorage.setItem('ams_customer_token', token);
+  } else {
+    localStorage.removeItem('ams_customer_token');
+  }
+}
+
+export function clearStoredCustomerToken() {
+  localStorage.removeItem('ams_customer_token');
+}
+
+export async function requestCustomerOtp(phone) {
+  const res = await fetch(`${BASE_URL}/auth/customer/request-otp`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ phone })
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    let msg = errorData.detail;
+    if (Array.isArray(msg)) msg = msg.map(m => m.msg || m.message).join(', ');
+    throw new Error(msg || 'Failed to send OTP. Please check your mobile number and try again.');
+  }
+
+  return await res.json();
+}
+
+export async function verifyCustomerOtp(phone, otp) {
+  const res = await fetch(`${BASE_URL}/auth/customer/verify-otp`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ phone, otp })
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    let msg = errorData.detail;
+    if (Array.isArray(msg)) msg = msg.map(m => m.msg || m.message).join(', ');
+    throw new Error(msg || 'Invalid or expired OTP. Please try again.');
+  }
+
+  const data = await res.json();
+  if (data.access_token) {
+    setStoredCustomerToken(data.access_token);
+  }
+  return data;
+}
+
+export async function getCurrentCustomer() {
+  const token = getStoredCustomerToken();
+  if (!token) throw new Error('No customer token found');
+
+  const res = await fetch(`${BASE_URL}/auth/customer/me`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+
+  if (!res.ok) {
+    if (res.status === 401 || res.status === 403) {
+      clearStoredCustomerToken();
+    }
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.detail || 'Customer session expired.');
+  }
+
+  return await res.json();
+}
+
+export async function updateCustomerProfile(profileData) {
+  const token = getStoredCustomerToken();
+  if (!token) throw new Error('Authentication required');
+
+  const res = await fetch(`${BASE_URL}/auth/customer/profile`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify(profileData)
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    let msg = errorData.detail;
+    if (Array.isArray(msg)) msg = msg.map(m => m.msg || m.message).join(', ');
+    throw new Error(msg || 'Failed to update profile.');
+  }
+
+  return await res.json();
+}
+
+export async function requestChangePhoneOtp(newPhone) {
+  const token = getStoredCustomerToken();
+  if (!token) throw new Error('Authentication required');
+
+  const res = await fetch(`${BASE_URL}/auth/customer/change-phone/request-otp`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({ new_phone: newPhone })
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    let msg = errorData.detail;
+    if (Array.isArray(msg)) msg = msg.map(m => m.msg || m.message).join(', ');
+    throw new Error(msg || 'Failed to send OTP to new mobile number.');
+  }
+
+  return await res.json();
+}
+
+export async function verifyChangePhoneOtp(newPhone, otp) {
+  const token = getStoredCustomerToken();
+  if (!token) throw new Error('Authentication required');
+
+  const res = await fetch(`${BASE_URL}/auth/customer/change-phone/verify-otp`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({ new_phone: newPhone, otp })
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    let msg = errorData.detail;
+    if (Array.isArray(msg)) msg = msg.map(m => m.msg || m.message).join(', ');
+    throw new Error(msg || 'Failed to verify OTP for new mobile number.');
+  }
+
+  return await res.json();
+}
+
+export async function customerLogout() {
+  const token = getStoredCustomerToken();
+  try {
+    if (token) {
+      await fetch(`${BASE_URL}/auth/customer/logout`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+    }
+  } catch (err) {
+    console.warn('[Customer API] Logout error:', err);
+  } finally {
+    clearStoredCustomerToken();
+  }
+  return true;
+}
+
+export async function getCustomerRepairs() {
+  const token = getStoredCustomerToken();
+  if (!token) return [];
+
+  const res = await fetch(`${BASE_URL}/auth/customer/repairs`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+
+  if (!res.ok) {
+    return [];
+  }
+
+  return await res.json();
+}
+
 
 export async function fetchAdminStats() {
   const token = getStoredToken();

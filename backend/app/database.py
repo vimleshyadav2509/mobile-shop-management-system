@@ -144,6 +144,38 @@ def init_db():
     if "token_version" not in existing_admin_cols:
         cursor.execute("ALTER TABLE admin_users ADD COLUMN token_version INTEGER DEFAULT 1")
 
+    # Customers table (stable customer identity tied to normalized mobile number)
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS customers (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL DEFAULT 'Valued Customer',
+        phone TEXT NOT NULL UNIQUE,
+        email TEXT,
+        address TEXT,
+        city TEXT,
+        state TEXT,
+        pincode TEXT,
+        phone_verified INTEGER DEFAULT 1,
+        created_at TEXT,
+        updated_at TEXT
+    );
+    """)
+
+    # Customer OTP verification & anti-abuse table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS customer_otps (
+        id TEXT PRIMARY KEY,
+        phone TEXT NOT NULL,
+        otp_hash TEXT NOT NULL,
+        attempts INTEGER DEFAULT 0,
+        max_attempts INTEGER DEFAULT 5,
+        expires_at TEXT NOT NULL,
+        consumed INTEGER DEFAULT 0,
+        created_at TEXT NOT NULL
+    );
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_customer_otps_phone ON customer_otps(phone);")
+
     # Check if products already exist
     cursor.execute("SELECT COUNT(*) as count FROM products")
     if cursor.fetchone()["count"] == 0:
@@ -967,6 +999,181 @@ def get_admin_dashboard_stats() -> Dict[str, Any]:
         "recent_products": recent_products,
         "recent_repairs": recent_repairs
     }
+
+# ==============================================================================
+# Customer Operations & OTP Identity
+# ==============================================================================
+
+def get_customer_by_phone(phone: str) -> Optional[Dict[str, Any]]:
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM customers WHERE phone = ?", (phone,))
+    row = cursor.fetchone()
+    conn.close()
+    if row:
+        d = dict(row)
+        d["phone_verified"] = bool(d.get("phone_verified", 1))
+        return d
+    return None
+
+def get_customer_by_id(customer_id: str) -> Optional[Dict[str, Any]]:
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM customers WHERE id = ?", (customer_id,))
+    row = cursor.fetchone()
+    conn.close()
+    if row:
+        d = dict(row)
+        d["phone_verified"] = bool(d.get("phone_verified", 1))
+        return d
+    return None
+
+def create_or_get_customer(phone: str, default_name: str = "Valued Customer") -> Dict[str, Any]:
+    """Find existing customer by normalized mobile or create a new customer account."""
+    existing = get_customer_by_phone(phone)
+    if existing:
+        return existing
+
+    conn = get_connection()
+    cursor = conn.cursor()
+    customer_id = str(uuid.uuid4())
+    now_str = datetime.now().isoformat()
+    cursor.execute("""
+    INSERT INTO customers (id, name, phone, email, address, city, state, pincode, phone_verified, created_at, updated_at)
+    VALUES (?, ?, ?, NULL, NULL, 'Khorare', 'Uttar Pradesh', '271312', 1, ?, ?)
+    """, (customer_id, default_name, phone, now_str, now_str))
+    conn.commit()
+    conn.close()
+    return get_customer_by_id(customer_id)
+
+def update_customer_profile(customer_id: str, data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id FROM customers WHERE id = ?", (customer_id,))
+    if not cursor.fetchone():
+        conn.close()
+        return None
+
+    allowed_fields = ["name", "email", "address", "city", "state", "pincode"]
+    updates = []
+    params = []
+    for k, v in data.items():
+        if k in allowed_fields and v is not None:
+            updates.append(f"{k} = ?")
+            params.append(v.strip() if isinstance(v, str) else v)
+
+    if updates:
+        now_str = datetime.now().isoformat()
+        updates.append("updated_at = ?")
+        params.append(now_str)
+        params.append(customer_id)
+        cursor.execute(f"UPDATE customers SET {', '.join(updates)} WHERE id = ?", params)
+        conn.commit()
+
+    conn.close()
+    return get_customer_by_id(customer_id)
+
+def update_customer_phone(customer_id: str, new_phone: str) -> Optional[Dict[str, Any]]:
+    """Update verified mobile number for an existing customer account."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    now_str = datetime.now().isoformat()
+    cursor.execute("""
+    UPDATE customers
+    SET phone = ?, phone_verified = 1, updated_at = ?
+    WHERE id = ?
+    """, (new_phone, now_str, customer_id))
+    conn.commit()
+    conn.close()
+    return get_customer_by_id(customer_id)
+
+# --- OTP Security & Storage ---
+
+def save_customer_otp(phone: str, otp_hash: str, expires_at: str, max_attempts: int = 5) -> str:
+    """Persist new OTP record after invalidating previous unconsumed OTPs for this phone."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    # Invalidate prior OTPs
+    cursor.execute("UPDATE customer_otps SET consumed = 1 WHERE phone = ? AND consumed = 0", (phone,))
+    
+    otp_id = str(uuid.uuid4())
+    now_str = datetime.now().isoformat()
+    cursor.execute("""
+    INSERT INTO customer_otps (id, phone, otp_hash, attempts, max_attempts, expires_at, consumed, created_at)
+    VALUES (?, ?, ?, 0, ?, ?, 0, ?)
+    """, (otp_id, phone, otp_hash, max_attempts, expires_at, now_str))
+    conn.commit()
+    conn.close()
+    return otp_id
+
+def get_latest_active_otp(phone: str) -> Optional[Dict[str, Any]]:
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+    SELECT * FROM customer_otps
+    WHERE phone = ? AND consumed = 0
+    ORDER BY created_at DESC LIMIT 1
+    """, (phone,))
+    row = cursor.fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+def increment_otp_attempts(otp_id: str) -> int:
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE customer_otps SET attempts = attempts + 1 WHERE id = ?", (otp_id,))
+    conn.commit()
+    cursor.execute("SELECT attempts FROM customer_otps WHERE id = ?", (otp_id,))
+    row = cursor.fetchone()
+    conn.close()
+    return row["attempts"] if row else 5
+
+def mark_otp_consumed(otp_id: str) -> bool:
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE customer_otps SET consumed = 1 WHERE id = ?", (otp_id,))
+    affected = cursor.rowcount
+    conn.commit()
+    conn.close()
+    return affected > 0
+
+def invalidate_customer_otps(phone: str) -> None:
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE customer_otps SET consumed = 1 WHERE phone = ?", (phone,))
+    conn.commit()
+    conn.close()
+
+def count_recent_otp_requests(phone: str, window_seconds: int = 3600) -> int:
+    """Anti-abuse check: count number of OTP requests made for a phone number in the window."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    cutoff = datetime.fromtimestamp(datetime.now().timestamp() - window_seconds).isoformat()
+    cursor.execute("""
+    SELECT COUNT(*) as cnt FROM customer_otps
+    WHERE phone = ? AND created_at >= ?
+    """, (phone, cutoff))
+    row = cursor.fetchone()
+    conn.close()
+    return row["cnt"] if row else 0
+
+def get_customer_repair_jobs(phone: str) -> List[Dict[str, Any]]:
+    """
+    Fetch all repair jobs matching a customer's phone number.
+    Matches normalized phone (+91XXXXXXXXXX) and raw 10-digit format.
+    Server-side authorization ensures customer only sees their own repairs.
+    """
+    conn = get_connection()
+    cursor = conn.cursor()
+    raw_10 = phone[-10:] if len(phone) >= 10 else phone
+    cursor.execute("""
+    SELECT * FROM repair_jobs
+    WHERE customer_phone = ? OR customer_phone = ? OR customer_phone LIKE ?
+    ORDER BY created_at DESC
+    """, (phone, raw_10, f"%{raw_10}%"))
+    rows = cursor.fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
 
 # Initialize on module load
 init_db()

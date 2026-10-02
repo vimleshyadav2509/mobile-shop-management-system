@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   User, 
   ShoppingBag, 
@@ -12,15 +12,26 @@ import {
   LogOut, 
   ChevronRight,
   Phone,
-  ShieldCheck
+  ShieldCheck,
+  LogIn
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
+import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { SHOP_INFO } from '../../data/mockData';
+import { SHOP_LOCATION, openShopLocationInMaps } from '../../utils/shopLocation';
+import AddressBookModal from './AddressBookModal';
+import CustomerAuthModal from './CustomerAuthModal';
 
 export default function CustomerAccount({ onNavigateTab }) {
   const { t, language, setLanguage } = useLanguage();
+  const { customer, isAuthenticated, logout } = useCustomerAuth();
   const navigate = useNavigate();
+
+  // Modal Visibility States
+  const [isAddressBookOpen, setIsAddressBookOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalMode, setAuthModalMode] = useState('auth');
 
   const handleLanguageToggle = () => {
     setLanguage(language === 'hi' ? 'en' : 'hi');
@@ -35,6 +46,16 @@ export default function CustomerAccount({ onNavigateTab }) {
       ? 'नमस्ते Amit Mobile Shop, मुझे सहायता चाहिए।'
       : 'Hello Amit Mobile Shop, I need assistance.';
     window.open(`https://wa.me/${SHOP_INFO.whatsapp}?text=${encodeURIComponent(text)}`, '_blank');
+  };
+
+  const openLoginModal = () => {
+    setAuthModalMode('auth');
+    setIsAuthModalOpen(true);
+  };
+
+  const openProfileModal = () => {
+    setAuthModalMode('profile');
+    setIsAuthModalOpen(true);
   };
 
   const menuSections = [
@@ -75,9 +96,10 @@ export default function CustomerAccount({ onNavigateTab }) {
         {
           id: 'address',
           label: t('ref_ui.address_book') || 'Address Book',
+          badge: language === 'hi' ? 'दुकान का नक्शा' : 'Shop Map',
           icon: MapPin,
           color: 'text-[#20B26B] bg-[#E6F8F0]',
-          action: () => window.open(SHOP_INFO.mapsUrl, '_blank')
+          action: () => setIsAddressBookOpen(true)
         },
         {
           id: 'language',
@@ -99,12 +121,25 @@ export default function CustomerAccount({ onNavigateTab }) {
           label: t('ref_ui.about_us') || 'About Us',
           icon: Info,
           color: 'text-[#64748B] bg-[#F1F5F9]',
-          action: () => window.open(SHOP_INFO.mapsUrl, '_blank')
+          action: openShopLocationInMaps
         }
       ]
     },
     {
       items: [
+        ...(isAuthenticated ? [
+          {
+            id: 'customer_logout',
+            label: language === 'hi' ? 'ग्राहक लॉग आउट' : 'Customer Log Out',
+            icon: LogOut,
+            color: 'text-red-600 bg-red-50',
+            action: async () => {
+              if (window.confirm(language === 'hi' ? 'क्या आप लॉग आउट करना चाहते हैं?' : 'Are you sure you want to log out?')) {
+                await logout();
+              }
+            }
+          }
+        ] : []),
         {
           id: 'admin',
           label: t('ref_ui.owner_login') || 'Shop Owner Login',
@@ -126,25 +161,59 @@ export default function CustomerAccount({ onNavigateTab }) {
       </div>
 
       {/* User Profile Card */}
-      <div className="bg-white rounded-2xl border border-[#E2E8F0] p-4 flex items-center gap-3.5 shadow-xs">
-        <div className="w-14 h-14 rounded-full bg-[#1264F5] text-white flex items-center justify-center font-bold text-xl shadow-xs shrink-0">
-          <User className="w-7 h-7" />
+      <div className="bg-white rounded-2xl border border-[#E2E8F0] p-4 flex items-center gap-3.5 shadow-xs transition hover:border-blue-200">
+        <div 
+          onClick={isAuthenticated ? openProfileModal : openLoginModal}
+          className={`w-14 h-14 rounded-full flex items-center justify-center font-bold text-xl shadow-xs shrink-0 cursor-pointer ${
+            isAuthenticated ? 'bg-[#20B26B] text-white' : 'bg-[#1264F5] text-white'
+          }`}
+        >
+          {isAuthenticated && customer?.name ? (
+            customer.name.charAt(0).toUpperCase()
+          ) : (
+            <User className="w-7 h-7" />
+          )}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <h3 className="text-base font-bold text-[#102A43] truncate">
-              {t('ref_ui.welcome_customer') || 'Welcome, Customer'}
+              {isAuthenticated ? (customer?.name || 'Valued Customer') : (t('ref_ui.welcome_customer') || 'Welcome, Customer')}
             </h3>
-            <span className="p-0.5 rounded-full bg-[#20B26B]/15 text-[#20B26B]">
-              <ShieldCheck className="w-3.5 h-3.5" />
-            </span>
+            {isAuthenticated ? (
+              <span className="p-0.5 rounded-full bg-[#20B26B]/15 text-[#20B26B]" title="Verified Customer">
+                <ShieldCheck className="w-3.5 h-3.5" />
+              </span>
+            ) : null}
           </div>
           <p className="text-xs text-[#64748B] truncate mt-0.5">
-            +91 {SHOP_INFO.phone1} • Khorare Chowraha
+            {isAuthenticated ? (
+              <span className="font-medium text-emerald-700">
+                {customer?.phone} • {customer?.city || 'Khorare'}
+              </span>
+            ) : (
+              `+91 ${SHOP_INFO.phone1} • Khorare Chowraha`
+            )}
           </p>
-          <span className="inline-block text-[11px] font-semibold text-[#1264F5] mt-1 hover:underline cursor-pointer">
-            {t('ref_ui.edit_profile') || 'Verified Store Customer'}
-          </span>
+
+          {/* Action Trigger */}
+          {isAuthenticated ? (
+            <button
+              type="button"
+              onClick={openProfileModal}
+              className="inline-block text-[11px] font-semibold text-[#1264F5] mt-1 hover:underline cursor-pointer"
+            >
+              {language === 'hi' ? 'प्रोफ़ाइल देखें एवं संपादित करें' : 'Edit Profile & Addresses'}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={openLoginModal}
+              className="inline-flex items-center gap-1 text-[11px] font-bold text-[#1264F5] bg-blue-50 hover:bg-blue-100 px-2.5 py-0.5 rounded-full mt-1.5 transition cursor-pointer"
+            >
+              <LogIn className="w-3 h-3" />
+              <span>{language === 'hi' ? 'मोबाइल OTP से लॉगिन करें' : 'Login with Mobile OTP'}</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -185,6 +254,23 @@ export default function CustomerAccount({ onNavigateTab }) {
           })}
         </div>
       ))}
+
+      {/* Feature B: Address Book Modal (Shop Location Map + Saved Address) */}
+      <AddressBookModal
+        isOpen={isAddressBookOpen}
+        onClose={() => setIsAddressBookOpen(false)}
+        onOpenAuthModal={() => {
+          setAuthModalMode('auth');
+          setIsAuthModalOpen(true);
+        }}
+      />
+
+      {/* Feature A: Customer Mobile OTP Authentication & Profile Modal */}
+      <CustomerAuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        initialMode={authModalMode}
+      />
     </div>
   );
 }

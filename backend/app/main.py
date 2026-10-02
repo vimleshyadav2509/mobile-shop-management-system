@@ -3,7 +3,7 @@ import os
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes import products, repairs, estimator, auth, admin, emi, settings
+from app.routes import products, repairs, estimator, auth, admin, emi, settings, customer_auth
 from app.config import (
     SHOP_PHONE_1,
     SHOP_PHONE_2,
@@ -70,6 +70,7 @@ app.include_router(products.router)
 app.include_router(repairs.router)
 app.include_router(estimator.router)
 app.include_router(auth.router)
+app.include_router(customer_auth.router)
 app.include_router(admin.router)
 app.include_router(emi.router)
 app.include_router(settings.router)

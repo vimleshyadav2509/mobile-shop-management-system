@@ -212,6 +212,47 @@ class MessageResponse(BaseModel):
     success: bool = True
     message: str
 
+# --- Customer Authentication & Mobile OTP Models ---
+class CustomerResponse(BaseModel):
+    id: str
+    name: str
+    phone: str
+    email: Optional[str] = None
+    address: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    pincode: Optional[str] = None
+    phone_verified: bool = True
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None
+
+class CustomerTokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    customer: CustomerResponse
+
+class OTPRequest(BaseModel):
+    phone: str = Field(..., description="Indian mobile number e.g. 9876543210 or +919876543210")
+
+class OTPVerify(BaseModel):
+    phone: str = Field(..., description="Indian mobile number used to request OTP")
+    otp: str = Field(..., min_length=4, max_length=10, description="Verification OTP code")
+
+class CustomerProfileUpdate(BaseModel):
+    name: Optional[str] = Field(None, min_length=1, max_length=100)
+    email: Optional[str] = Field(None, max_length=150)
+    address: Optional[str] = Field(None, max_length=300)
+    city: Optional[str] = Field(None, max_length=100)
+    state: Optional[str] = Field(None, max_length=100)
+    pincode: Optional[str] = Field(None, max_length=10)
+
+class ChangePhoneRequest(BaseModel):
+    new_phone: str = Field(..., description="New Indian mobile number to verify")
+
+class ChangePhoneVerify(BaseModel):
+    new_phone: str = Field(..., description="New Indian mobile number")
+    otp: str = Field(..., min_length=4, max_length=10, description="Verification OTP code")
+
 # --- EMI Models ---
 class EmiPlan(BaseModel):
     id: str

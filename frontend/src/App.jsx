@@ -4,6 +4,7 @@ import CustomerStorefront from './components/CustomerStorefront';
 import ErrorBoundary from './components/ErrorBoundary';
 import { LanguageProvider } from './context/LanguageContext';
 import { AuthProvider } from './context/AuthContext';
+import { CustomerAuthProvider } from './context/CustomerAuthContext';
 import { CartProvider } from './context/CartContext';
 import { ShopSettingsProvider } from './context/ShopSettingsContext';
 import AdminLoginPage from './components/Admin/AdminLoginPage';
@@ -14,9 +15,10 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <CartProvider>
-          <LanguageProvider>
-            <ShopSettingsProvider>
+        <CustomerAuthProvider>
+          <CartProvider>
+            <LanguageProvider>
+              <ShopSettingsProvider>
               <Routes>
               {/* Public Customer Storefront with 3D Category Panels */}
               <Route
@@ -46,6 +48,7 @@ export default function App() {
           </ShopSettingsProvider>
         </LanguageProvider>
         </CartProvider>
+        </CustomerAuthProvider>
       </AuthProvider>
     </BrowserRouter>
   );
