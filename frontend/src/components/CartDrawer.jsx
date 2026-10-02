@@ -6,9 +6,8 @@ import {
   Minus,
   Trash2,
   MessageCircle,
-  CreditCard,
-  ArrowRight,
-  Sparkles
+  Sparkles,
+  ArrowRight
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -55,28 +54,28 @@ export default function CartDrawer() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden animate-card-fade">
+    <div className="fixed inset-0 z-50 overflow-hidden animate-in fade-in duration-200">
       {/* Backdrop */}
       <div
         onClick={closeCart}
-        className="absolute inset-0 bg-black/70 backdrop-blur-md transition-opacity"
+        className="absolute inset-0 bg-slate-900/50 backdrop-blur-2xs transition-opacity"
       />
 
-      <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-        <div className="w-screen max-w-md bg-[#060A13]/95 backdrop-blur-2xl border-l border-white/10 shadow-2xl text-white flex flex-col justify-between">
+      <div className="fixed inset-y-0 right-0 max-w-full flex pl-6 sm:pl-10">
+        <div className="w-screen max-w-md bg-white border-l border-[#E2E8F0] shadow-2xl flex flex-col justify-between">
           
           {/* Header */}
-          <div className="p-5 sm:p-6 border-b border-white/10 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary-600/20 text-primary-400 flex items-center justify-center border border-primary-500/30 shadow-glow-primary">
+          <div className="p-4 sm:p-5 border-b border-[#E2E8F0] flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-[#EAF3FF] text-[#1264F5] flex items-center justify-center">
                 <ShoppingBag className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-base sm:text-lg font-black tracking-tight font-['Poppins']">
-                  {t('cart.title')}
+                <h3 className="text-base font-bold text-[#102A43]">
+                  {t('cart.title') || 'Shopping Bag'}
                 </h3>
-                <p className="text-xs text-slate-400">
-                  {cartCount} {cartCount === 1 ? t('cart.item') : t('cart.items')} • Amit Mobile Shop
+                <p className="text-[11px] text-[#64748B]">
+                  {cartCount} {cartCount === 1 ? (t('ref_ui.items_count') || 'item') : (t('ref_ui.items_count') || 'items')}
                 </p>
               </div>
             </div>
@@ -84,157 +83,161 @@ export default function CartDrawer() {
             <button
               type="button"
               onClick={closeCart}
-              className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center cursor-pointer"
+              aria-label="Close cart"
+              className="p-2 rounded-xl text-[#64748B] hover:text-[#102A43] hover:bg-[#F8FAFC] transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
           {/* Cart Item List */}
-          <div className="p-5 sm:p-6 flex-1 overflow-y-auto space-y-3.5">
-            {cart.length === 0 ? (
-              <div className="py-16 text-center text-slate-400 space-y-3">
-                <ShoppingBag className="w-14 h-14 mx-auto opacity-25 text-primary-400" />
-                <h4 className="text-base font-bold text-white">
-                  {t('cart.empty_title')}
+          <div className="p-4 sm:p-5 flex-1 overflow-y-auto space-y-3">
+            {safeCart.length === 0 ? (
+              <div className="py-16 text-center text-[#64748B] space-y-3">
+                <div className="w-16 h-16 rounded-full bg-[#F1F5F9] text-slate-400 flex items-center justify-center mx-auto">
+                  <ShoppingBag className="w-8 h-8" />
+                </div>
+                <h4 className="text-sm font-bold text-[#102A43]">
+                  {t('ref_ui.cart_empty') || 'Your cart is empty'}
                 </h4>
-                <p className="text-xs text-slate-400 max-w-xs mx-auto">
-                  {t('cart.empty_desc')}
+                <p className="text-xs text-[#64748B] max-w-xs mx-auto">
+                  {t('cart.empty_desc') || 'Explore our collection of latest phones and accessories.'}
                 </p>
                 <button
                   type="button"
                   onClick={closeCart}
-                  className="mt-4 px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold border border-white/15 transition cursor-pointer"
+                  className="mt-3 px-4 py-2 rounded-xl bg-[#1264F5] hover:bg-[#0E52C9] text-white text-xs font-bold transition shadow-2xs cursor-pointer"
                 >
-                  {t('cart.continue_browsing')}
+                  {t('ref_ui.continue_shopping') || 'Continue Shopping'}
                 </button>
               </div>
             ) : (
               safeCart.map((item) => (
                 <div
                   key={item.cartItemId || item.id || Math.random()}
-                  className="p-3.5 rounded-2xl bg-white/[0.06] border border-white/10 flex items-start gap-3.5 relative group hover:border-white/20 transition-colors"
+                  className="p-3 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0] flex items-center gap-3 relative group"
                 >
-                  <img
-                    src={item.image_url}
-                    alt={item.title}
-                    className="w-16 h-16 rounded-xl object-contain bg-white/5 border border-white/10 p-1 shrink-0"
-                    onError={(e) => {
-                      e.target.src =
-                        'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop&q=80';
-                    }}
-                  />
+                  {/* Small Controlled Image */}
+                  <div className="w-14 h-14 rounded-xl bg-white border border-[#E2E8F0] p-1 flex items-center justify-center shrink-0">
+                    <img
+                      src={item.image_url}
+                      alt={item.title}
+                      className="max-h-full max-w-full object-contain"
+                      onError={(e) => {
+                        e.target.src =
+                          'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&auto=format&fit=crop&q=80';
+                      }}
+                    />
+                  </div>
 
+                  {/* Title & Price */}
                   <div className="flex-1 min-w-0">
-                    <span className="text-[10px] uppercase font-black text-primary-400 tracking-wider">
-                      {item.brand || 'Original'}
-                    </span>
-                    <h4 className="text-xs sm:text-sm font-bold text-white truncate">
+                    <h4 className="text-xs font-bold text-[#102A43] truncate leading-tight">
                       {item.title}
                     </h4>
 
-                    <div className="flex items-center gap-2 mt-1 text-[11px] text-slate-400">
+                    <div className="flex items-center gap-1.5 mt-0.5 text-[11px] text-[#64748B]">
                       {item.color && (
-                        <span className="px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-slate-300">
+                        <span className="font-medium text-[#1264F5]">
                           {item.color}
                         </span>
                       )}
-                      {item.ram_storage && (
+                      {item.variant && (
                         <>
                           <span>•</span>
-                          <span>{item.ram_storage}</span>
+                          <span>{item.variant}</span>
                         </>
                       )}
                     </div>
 
-                    <div className="flex items-center justify-between mt-3 pt-2 border-t border-white/5">
-                      <span className="text-sm font-black text-white font-['Poppins']">
-                        ₹{((Number(item?.price) || 0) * (item?.quantity || 1)).toLocaleString()}
+                    <div className="mt-1 flex items-baseline gap-2">
+                      <span className="text-xs sm:text-sm font-extrabold text-[#102A43]">
+                        ₹{Number(item.price || 0).toLocaleString()}
                       </span>
-
-                      {/* Quantity Selector */}
-                      <div className="flex items-center gap-2 bg-white/5 rounded-lg border border-white/10 p-0.5">
-                        <button
-                          type="button"
-                          onClick={() => updateQuantity(item.cartItemId, -1)}
-                          className="p-1 rounded text-slate-400 hover:text-white hover:bg-white/10 transition cursor-pointer"
-                        >
-                          <Minus className="w-3 h-3" />
-                        </button>
-                        <span className="text-xs font-bold w-4 text-center">
-                          {item.quantity}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => updateQuantity(item.cartItemId, 1)}
-                          className="p-1 rounded text-slate-400 hover:text-white hover:bg-white/10 transition cursor-pointer"
-                        >
-                          <Plus className="w-3 h-3" />
-                        </button>
-                      </div>
                     </div>
                   </div>
 
-                  {/* Remove Button */}
-                  <button
-                    type="button"
-                    onClick={() => removeFromCart(item.cartItemId)}
-                    className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition absolute top-2 right-2 cursor-pointer"
-                    title="Remove item"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+                  {/* Quantity & Delete Controls */}
+                  <div className="flex flex-col items-end justify-between self-stretch shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => removeFromCart(item.cartItemId || item.id)}
+                      className="p-1 text-[#94A3B8] hover:text-[#EF4444] transition-colors"
+                      title="Remove"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+
+                    <div className="flex items-center border border-[#E2E8F0] bg-white rounded-lg overflow-hidden">
+                      <button
+                        type="button"
+                        onClick={() => updateQuantity(item.cartItemId || item.id, (item.quantity || 1) - 1)}
+                        className="px-2 py-0.5 text-[#102A43] hover:bg-slate-100 transition text-xs font-bold cursor-pointer"
+                      >
+                        <Minus className="w-3 h-3" />
+                      </button>
+                      <span className="px-2 text-xs font-bold text-[#102A43]">
+                        {item.quantity || 1}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => updateQuantity(item.cartItemId || item.id, (item.quantity || 1) + 1)}
+                        className="px-2 py-0.5 text-[#102A43] hover:bg-slate-100 transition text-xs font-bold cursor-pointer"
+                      >
+                        <Plus className="w-3 h-3" />
+                      </button>
+                    </div>
+                  </div>
                 </div>
               ))
             )}
           </div>
 
-          {/* Footer & Checkout */}
-          {cart.length > 0 && (
-            <div className="p-5 sm:p-6 border-t border-white/10 bg-black/40 space-y-4">
-              
-              {/* 0% EMI Banner in Cart */}
-              <div className="p-3 rounded-xl bg-gold-500/10 border border-gold-500/25 flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2 text-gold-400 font-bold">
-                  <CreditCard className="w-4 h-4" />
-                  <span>{t('cart.emi_available')}</span>
+          {/* Footer Summary */}
+          {safeCart.length > 0 && (
+            <div className="p-4 sm:p-5 border-t border-[#E2E8F0] bg-[#F8FAFC] space-y-3">
+              {/* 0% EMI Note */}
+              <div className="p-2.5 rounded-xl bg-[#EAF3FF] border border-[#BFDBFE] flex items-center justify-between text-xs text-[#1264F5]">
+                <div className="flex items-center gap-1.5 font-semibold">
+                  <Sparkles className="w-3.5 h-3.5 text-[#F4B400]" />
+                  <span>0% EMI Available</span>
                 </div>
-                <span className="text-gold-300 font-extrabold font-['Poppins']">
-                  ₹{cartMonthlyEmi.toLocaleString()} {t('cart.per_month_12m')}
+                <span className="font-bold">
+                  ₹{Number(cartMonthlyEmi || 0).toLocaleString()}/mo
                 </span>
               </div>
 
-              {/* Total Row */}
-              <div className="flex items-baseline justify-between text-sm">
-                <span className="text-slate-400 font-medium">
-                  {t('cart.total_value')}
+              {/* Subtotal */}
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-[#64748B] font-medium">
+                  {t('ref_ui.cart_subtotal') || 'Subtotal'}
                 </span>
-                <span className="text-2xl font-black text-white font-['Poppins']">
-                  ₹{cartTotal.toLocaleString()}
+                <span className="text-lg font-black text-[#102A43]">
+                  ₹{Number(cartTotal || 0).toLocaleString()}
                 </span>
               </div>
 
-              {/* Direct WhatsApp Order CTA */}
+              {/* Action Buttons */}
               <button
                 type="button"
                 onClick={handleWhatsAppCheckout}
-                className="w-full py-3.5 px-4 rounded-xl bg-whatsapp-600 hover:bg-whatsapp-700 text-white font-bold text-sm transition-all shadow-glow-whatsapp flex items-center justify-center gap-2 min-h-[44px] cursor-pointer"
+                className="w-full py-3 px-4 rounded-xl bg-[#20B26B] hover:bg-[#1A985B] text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-xs cursor-pointer transition-all"
               >
-                <MessageCircle className="w-5 h-5" />
-                <span>
-                  {t('cart.checkout_whatsapp')}
-                </span>
+                <MessageCircle className="w-4 h-4" />
+                <span>{t('ref_ui.checkout_whatsapp') || 'Order via WhatsApp'}</span>
               </button>
 
-              <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1">
-                <span>{t('cart.pickup_notice')}</span>
+              <div className="flex items-center justify-between pt-1">
                 <button
                   type="button"
                   onClick={clearCart}
-                  className="hover:text-rose-400 transition cursor-pointer"
+                  className="text-[11px] text-[#64748B] hover:text-[#EF4444] transition-colors"
                 >
-                  {t('cart.clear_bag')}
+                  Clear Bag
                 </button>
+                <span className="text-[10px] text-[#64748B]">
+                  Pickup at Khorare Chowraha
+                </span>
               </div>
             </div>
           )}

@@ -38,6 +38,21 @@ export default {
           900: '#0B1120',
           800: '#111827',
           700: '#1F2937',
+        },
+        brand: {
+          blue: '#1264F5',
+          darkBlue: '#12315B',
+          navy: '#102A43',
+          lightBlue: '#EAF3FF',
+          veryLightBlue: '#F5F9FF',
+          green: '#20B26B',
+          yellow: '#F4B400',
+          red: '#EF4444',
+          bg: '#F8FAFC',
+          card: '#FFFFFF',
+          border: '#E2E8F0',
+          text: '#102A43',
+          muted: '#64748B',
         }
       },
       fontFamily: {
