@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { uploadProductImage } from '../../services/api';
 import { SUPPORTED_MOBILE_BRANDS } from '../../data/mockData';
+import { resolveProductImageUrl, handleImageError } from '../../utils/imageUtils';
 
 const CATEGORIES = ['Smartphones', 'Tablets', 'Feature Phones', 'Accessories'];
 
@@ -448,12 +449,10 @@ export default function ProductsManager({
                     <tr key={product.id} className="hover:bg-[var(--card-hover)] transition-colors">
                       <td className="py-3 px-4">
                         <img
-                          src={product.image_url}
+                          src={resolveProductImageUrl(product.image_url)}
                           alt={product.title}
                           className="w-11 h-11 rounded-xl object-contain bg-white/5 border border-[var(--border)] p-0.5"
-                          onError={(e) => {
-                            e.target.src = "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop&q=80";
-                          }}
+                          onError={handleImageError}
                         />
                       </td>
                       <td className="py-3 px-4 max-w-xs">
@@ -543,12 +542,10 @@ export default function ProductsManager({
               >
                 <div className="flex items-start gap-3">
                   <img
-                    src={product.image_url}
+                    src={resolveProductImageUrl(product.image_url)}
                     alt={product.title}
                     className="w-16 h-16 rounded-xl object-contain bg-white/5 border border-[var(--border)] p-1 shrink-0"
-                    onError={(e) => {
-                      e.target.src = "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop&q=80";
-                    }}
+                    onError={handleImageError}
                   />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-1">
@@ -711,12 +708,10 @@ export default function ProductsManager({
                   <div className="w-11 h-11 sm:w-16 sm:h-16 rounded-xl bg-[#0B1220] border border-[#334155] p-1 shrink-0 flex items-center justify-center overflow-hidden">
                     {formImageUrl ? (
                       <img
-                        src={formImageUrl}
+                        src={resolveProductImageUrl(formImageUrl)}
                         alt={formName || 'Product'}
                         className="w-full h-full object-contain"
-                        onError={(e) => {
-                          e.target.src = "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop&q=80";
-                        }}
+                        onError={handleImageError}
                       />
                     ) : (
                       <Smartphone className="w-6 h-6 text-[#64748B]" />
@@ -1207,12 +1202,10 @@ export default function ProductsManager({
                       {formImageUrl && (
                         <div className="flex items-center gap-3 p-3 rounded-xl bg-[#172033] border border-[#334155]">
                           <img
-                            src={formImageUrl}
+                            src={resolveProductImageUrl(formImageUrl)}
                             alt="Preview"
                             className="w-14 h-14 object-contain rounded-lg border border-[#334155] bg-[#0B1220] p-1 shrink-0"
-                            onError={(e) => {
-                              e.target.src = "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop&q=80";
-                            }}
+                            onError={handleImageError}
                           />
                           <div className="text-[11px] text-[#94A3B8] truncate flex-1">
                             <span className="font-semibold text-[#F8FAFC] block">Image Preview</span>

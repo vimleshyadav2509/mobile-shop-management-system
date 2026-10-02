@@ -36,12 +36,8 @@ export default function SecondHandHub({ onBack, onSelectProduct, onOpenCalculato
     try {
       const brandParam = selectedBrand === 'All Brands' ? null : selectedBrand;
       const data = await fetchProducts('refurbished', brandParam);
-      if (Array.isArray(data) && data.length > 0) {
+      if (Array.isArray(data)) {
         setProducts(data);
-      } else {
-        // Fallback to initial products filtered by refurbished/used
-        const fallback = INITIAL_PRODUCTS.filter(p => p.condition === 'refurbished' || p.condition === 'used');
-        setProducts(fallback.length > 0 ? fallback : INITIAL_PRODUCTS);
       }
     } catch (err) {
       console.warn('[SecondHandHub] Fetch error, using fallback:', err);

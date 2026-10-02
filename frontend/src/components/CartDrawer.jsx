@@ -12,6 +12,7 @@ import {
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
 import { SHOP_INFO } from '../data/mockData';
+import { resolveProductImageUrl, handleImageError } from '../utils/imageUtils';
 
 export default function CartDrawer() {
   const {
@@ -120,13 +121,10 @@ export default function CartDrawer() {
                   {/* Small Controlled Image */}
                   <div className="w-14 h-14 rounded-xl bg-white border border-[#E2E8F0] p-1 flex items-center justify-center shrink-0">
                     <img
-                      src={item.image_url}
+                      src={resolveProductImageUrl(item.image_url)}
                       alt={item.title}
                       className="max-h-full max-w-full object-contain"
-                      onError={(e) => {
-                        e.target.src =
-                          'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&auto=format&fit=crop&q=80';
-                      }}
+                      onError={handleImageError}
                     />
                   </div>
 

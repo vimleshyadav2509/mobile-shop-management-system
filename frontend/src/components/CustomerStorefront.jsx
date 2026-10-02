@@ -30,6 +30,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useCart } from '../context/CartContext';
 import { SHOP_INFO, INITIAL_PRODUCTS, INITIAL_ACCESSORIES } from '../data/mockData';
 import { fetchProducts } from '../services/api';
+import { resolveProductImageUrl, handleImageError } from '../utils/imageUtils';
 
 export default function CustomerStorefront() {
   const [activeTab, setActiveTab] = useState('home'); // 'home' | 'mobiles' | 'accessories' | 'repairs' | 'account'
@@ -61,7 +62,7 @@ export default function CustomerStorefront() {
   const loadCatalog = async () => {
     try {
       const data = await fetchProducts();
-      if (Array.isArray(data) && data.length > 0) {
+      if (Array.isArray(data)) {
         setProducts(data);
       }
     } catch (err) {
@@ -305,7 +306,12 @@ export default function CustomerStorefront() {
                     className="ref-card p-3 flex flex-col justify-between cursor-pointer"
                   >
                     <div className="w-full h-24 flex items-center justify-center">
-                      <img src={item.image_url} alt={item.title} className="max-h-full max-w-full object-contain" />
+                      <img
+                        src={resolveProductImageUrl(item.image_url)}
+                        alt={item.title}
+                        className="max-h-full max-w-full object-contain"
+                        onError={handleImageError}
+                      />
                     </div>
                     <div className="mt-2">
                       <p className="text-[10px] text-[#64748B] font-semibold">{item.brand}</p>

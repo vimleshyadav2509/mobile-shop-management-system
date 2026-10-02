@@ -15,6 +15,7 @@ import {
 import { INITIAL_ACCESSORIES, SHOP_INFO } from '../data/mockData';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
+import { resolveProductImageUrl, handleImageError } from '../utils/imageUtils';
 
 const CATEGORIES = [
   { id: 'all', label_hi: 'सभी', label_en: 'All', icon: Sparkles },
@@ -177,10 +178,11 @@ export default function AccessoriesHub({ onBack }) {
                 {/* Controlled Product Image (120px, object-contain) */}
                 <div className="w-full h-28 sm:h-32 flex items-center justify-center p-2 bg-white rounded-lg overflow-hidden">
                   <img
-                    src={item.image_url}
+                    src={resolveProductImageUrl(item.image_url)}
                     alt={item.title}
                     className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-200"
                     loading="lazy"
+                    onError={handleImageError}
                   />
                 </div>
 

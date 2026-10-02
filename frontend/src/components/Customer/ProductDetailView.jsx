@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ArrowLeft, 
   Heart, 
@@ -17,11 +17,16 @@ import {
 import { useLanguage } from '../../context/LanguageContext';
 import { useCart } from '../../context/CartContext';
 import { SHOP_INFO } from '../../data/mockData';
+import { resolveProductImageUrl, handleImageError } from '../../utils/imageUtils';
 
 export default function ProductDetailView({ product, onBack, onOpenCalculator }) {
   const { t, language } = useLanguage();
   const { addToCart } = useCart();
   const [selectedImage, setSelectedImage] = useState(product?.image_url);
+
+  useEffect(() => {
+    setSelectedImage(product?.image_url);
+  }, [product?.image_url]);
   const [selectedColor, setSelectedColor] = useState(product?.color || 'Black');
   const [isFavorite, setIsFavorite] = useState(false);
   const [justAdded, setJustAdded] = useState(false);
@@ -152,12 +157,10 @@ export default function ProductDetailView({ product, onBack, onOpenCalculator })
         <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 flex flex-col items-center justify-center relative shadow-xs">
           <div className="w-full h-56 sm:h-64 flex items-center justify-center">
             <img
-              src={selectedImage || product.image_url}
+              src={resolveProductImageUrl(selectedImage || product.image_url)}
               alt={product.title}
               className="max-h-full max-w-full object-contain transition-all duration-300"
-              onError={(e) => {
-                e.target.src = "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&auto=format&fit=crop&q=80";
-              }}
+              onError={handleImageError}
             />
           </div>
 
@@ -175,7 +178,12 @@ export default function ProductDetailView({ product, onBack, onOpenCalculator })
                       : 'border-[#E2E8F0] hover:border-slate-300'
                   }`}
                 >
-                  <img src={img} alt="" className="w-full h-full object-contain" />
+                  <img
+                    src={resolveProductImageUrl(img)}
+                    alt=""
+                    className="w-full h-full object-contain"
+                    onError={handleImageError}
+                  />
                 </button>
               ))}
             </div>

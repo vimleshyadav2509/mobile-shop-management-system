@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Heart, ShoppingBag, Sparkles, Check } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useCart } from '../../context/CartContext';
+import { resolveProductImageUrl, handleImageError } from '../../utils/imageUtils';
 
 export default function ProductCard({ product, onSelectProduct, onOpenCalculator }) {
   const { t, language } = useLanguage();
@@ -75,13 +76,11 @@ export default function ProductCard({ product, onSelectProduct, onOpenCalculator
       {/* Controlled Product Image (120px-140px, object-contain, white background) */}
       <div className="w-full h-28 sm:h-36 flex items-center justify-center p-2 bg-white rounded-lg overflow-hidden relative">
         <img
-          src={product.image_url}
+          src={resolveProductImageUrl(product.image_url)}
           alt={product.title}
           className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-200"
           loading="lazy"
-          onError={(e) => {
-            e.target.src = "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&auto=format&fit=crop&q=80";
-          }}
+          onError={handleImageError}
         />
         {isOutOfStock && (
           <div className="absolute inset-0 bg-white/70 backdrop-blur-2xs flex items-center justify-center">

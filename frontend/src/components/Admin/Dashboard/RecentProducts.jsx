@@ -1,5 +1,6 @@
 import React from 'react';
 import { ChevronRight, Smartphone } from 'lucide-react';
+import { resolveProductImageUrl, handleImageError } from '../../../utils/imageUtils';
 
 export default function RecentProducts({
   products = [],
@@ -54,12 +55,10 @@ export default function RecentProducts({
                       <td className="py-2.5 pr-2">
                         <div className="flex items-center gap-2.5">
                           <img
-                            src={p.image_url}
+                            src={resolveProductImageUrl(p.image_url)}
                             alt={p.title}
                             className="w-8 h-8 rounded-lg object-cover bg-[var(--muted)] border border-[var(--border)] shrink-0"
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                            }}
+                            onError={handleImageError}
                           />
                           <div className="min-w-0">
                             <p className="font-semibold text-[var(--foreground)] truncate max-w-[150px]">
@@ -100,12 +99,10 @@ export default function RecentProducts({
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <img
-                      src={p.image_url}
+                      src={resolveProductImageUrl(p.image_url)}
                       alt={p.title}
                       className="w-11 h-11 rounded-xl object-cover bg-[var(--muted)] border border-[var(--border)] shrink-0"
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                      }}
+                      onError={handleImageError}
                     />
                     <div className="min-w-0">
                       <p className="text-xs font-bold text-[var(--foreground)] truncate">

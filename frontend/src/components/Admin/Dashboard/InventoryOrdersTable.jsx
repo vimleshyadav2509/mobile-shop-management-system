@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   Clock
 } from 'lucide-react';
+import { resolveProductImageUrl, handleImageError } from '../../../utils/imageUtils';
 
 export default function InventoryOrdersTable({ 
   products = [], 
@@ -131,12 +132,10 @@ export default function InventoryOrdersTable({
                     <div className="flex items-center gap-3">
                       <div className="w-9 h-9 rounded-md bg-slate-950 border border-slate-800 overflow-hidden flex items-center justify-center shrink-0">
                         <img 
-                          src={product.image_url} 
+                          src={resolveProductImageUrl(product.image_url)} 
                           alt={product.title} 
                           className="w-full h-full object-contain p-1"
-                          onError={(e) => {
-                            e.target.src = "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&auto=format&fit=crop&q=80";
-                          }}
+                          onError={handleImageError}
                         />
                       </div>
                       <div className="min-w-0">

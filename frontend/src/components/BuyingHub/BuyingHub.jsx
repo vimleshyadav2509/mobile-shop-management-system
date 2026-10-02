@@ -52,10 +52,8 @@ export default function BuyingHub({ onBack, onSelectProduct, initialTab = 'all' 
       if (activeTab === 'refurbished') conditionParam = 'refurbished';
       
       const data = await fetchProducts(conditionParam, brandParam);
-      if (Array.isArray(data) && data.length > 0) {
+      if (Array.isArray(data)) {
         setProducts(data);
-      } else {
-        setProducts(INITIAL_PRODUCTS);
       }
     } catch (err) {
       console.warn('[BuyingHub] Failed to load products from API, retaining fallback:', err);

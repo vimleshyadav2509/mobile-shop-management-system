@@ -17,19 +17,23 @@ function resolveApiBaseUrl() {
 
 const BASE_URL = resolveApiBaseUrl();
 
+import {
+  resolveProductImageUrl,
+  getBackendOrigin,
+  PLACEHOLDER_PHONE_SVG,
+  handleImageError
+} from '../utils/imageUtils';
+
+export {
+  resolveProductImageUrl,
+  getBackendOrigin,
+  PLACEHOLDER_PHONE_SVG,
+  handleImageError
+};
+
 // Helper to resolve static image assets against remote backend if decoupled without reverse proxy
 export function getStaticAssetUrl(path) {
-  if (!path || typeof path !== 'string') return '';
-  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) {
-    return path;
-  }
-  const envUrl = (import.meta.env.VITE_API_URL || '').trim();
-  if (envUrl && !envUrl.startsWith('/')) {
-    const cleanOrigin = envUrl.replace(/\/+$/, '').replace(/\/api$/, '');
-    const cleanPath = path.startsWith('/') ? path : `/${path}`;
-    return `${cleanOrigin}${cleanPath}`;
-  }
-  return path;
+  return resolveProductImageUrl(path);
 }
 
 
@@ -48,7 +52,7 @@ export async function fetchProducts(condition = null, brand = null, includeOutOf
     }
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3500);
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
 
     const res = await fetch(url, { signal: controller.signal });
     clearTimeout(timeoutId);
